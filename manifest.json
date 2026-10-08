@@ -1,0 +1,16 @@
+{
+  "name": "热量管家 · 减肥饮食记录",
+  "short_name": "热量管家",
+  "description": "拍照记录每一餐，盯着热量瘦下来。强制拍照 + 手动录入配料表营养数据。",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F6F3",
+  "theme_color": "#0D9463",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
