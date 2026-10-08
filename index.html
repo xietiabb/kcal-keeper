@@ -54,7 +54,7 @@ body{
 
 /* ===== 今日卡片 ===== */
 .hero-card{background:var(--card);border-radius:var(--radius);padding:22px 18px 18px;box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
-.streak{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:4px;background:var(--orange-lt);color:var(--orange);font-weight:700;font-size:12px;padding:4px 10px;border-radius:999px}
+.streak{display:inline-flex;align-items:center;gap:4px;background:var(--orange-lt);color:var(--orange);font-weight:700;font-size:12px;padding:4px 11px;border-radius:999px;margin-bottom:6px}
 .streak .flame{font-size:13px}
 .ring-wrap{width:198px;height:198px;margin:8px auto 4px;position:relative}
 .ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
@@ -71,7 +71,7 @@ body{
 /* 营养素环形卡 */
 .macro-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
 .macro{background:var(--card);border-radius:16px;padding:14px 8px 12px;box-shadow:var(--shadow);text-align:center}
-.donut{width:78px;height:78px;margin:0 auto;position:relative}
+.donut{width:min(78px,100%);height:78px;margin:0 auto;position:relative}
 .donut svg{width:100%;height:100%;transform:rotate(-90deg)}
 .d-bg{fill:none;stroke:var(--line);stroke-width:9}
 .d-fg{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:213.6;stroke-dashoffset:213.6;transition:stroke-dashoffset .7s cubic-bezier(.3,.8,.3,1)}
@@ -81,11 +81,13 @@ body{
 .donut-c b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
 .donut-c b.over{color:var(--red)}
 .donut-c small{font-size:10px;color:var(--ink3);margin-left:1px}
-.macro-name{font-size:11.5px;color:var(--ink2);margin-top:9px;font-weight:600}
+.macro-name{font-size:12px;color:var(--ink);margin-top:9px;font-weight:700}
 .macro-goal{font-size:10.5px;color:var(--ink3);font-weight:400}
-.pf-tag{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:5.5px;color:#fff;font-size:10px;font-weight:800;margin-right:5px;vertical-align:-3.5px;letter-spacing:.5px;font-family:inherit}
-.pf-tag.big{width:21px;height:21px;border-radius:6.5px;font-size:12px;vertical-align:-5px}
-.t-p{background:var(--blue)} .t-c{background:var(--orange)} .t-f{background:var(--purple)}
+.mtag{display:inline-block;width:4px;height:13px;border-radius:2px;margin-right:6px;vertical-align:-1.5px}
+.mtag.big{height:15px;vertical-align:-2.5px}
+.c-p{background:var(--blue)} .c-c{background:var(--orange)} .c-f{background:var(--purple)}
+.c-kcal{background:var(--green)} .c-sugar{background:var(--red)} .c-na{background:var(--ink3)} .c-fiber{background:var(--green-dk)}
+.c-bf{background:#D9A404} .c-lunch{background:var(--green)} .c-dinner{background:#4F46E5} .c-snack{background:var(--ink3)}
 
 /* 运动消耗卡 */
 .ex-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-top:12px;padding:13px 15px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center}
@@ -108,7 +110,6 @@ body{
 .meal-group{margin-top:16px}
 .meal-head{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 8px}
 .meal-name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:7px}
-.meal-name .em{font-size:16px}
 .meal-sum{font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums}
 .rec-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);display:flex;gap:12px;padding:10px;margin-bottom:10px;align-items:center;cursor:pointer}
 .rec-thumb{width:64px;height:64px;border-radius:12px;object-fit:cover;background:var(--green-lt);flex-shrink:0}
@@ -252,8 +253,9 @@ body{
 .about{ text-align:center;padding:20px;color:var(--ink3);font-size:12px;line-height:2}
 
 /* 引导页 */
-#onboard{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;max-width:480px;margin:0 auto}
-#onboard.open{display:flex}
+#onboard{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#onboard.open{display:block}
+.ob-inner{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 28px calc(28px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto}
 .ob-logo{width:88px;height:88px;border-radius:26px;background:linear-gradient(135deg,#0D9463,#047857);display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:18px;box-shadow:0 10px 30px rgba(13,148,99,.4)}
 .ob-title{font-size:26px;font-weight:800}
 .ob-sub{font-size:14px;color:var(--ink2);margin:8px 0 28px;text-align:center;line-height:1.8}
@@ -338,7 +340,7 @@ body{
 
     <div class="ex-card" id="ex-card">
       <div class="ex-left">
-        <span class="ex-ico">⌚</span>
+        <span class="ex-ico"><svg viewBox="0 0 24 24" width="21" height="21"><path d="M13.2 1.8 4.2 13.6h5.1L8.1 22.2 19.8 8.9h-6.2l-.4-7.1Z" fill="var(--blue)"/></svg></span>
         <div>
           <div class="ex-name">手表运动消耗</div>
           <div class="ex-sub">从手表/小米运动健康抄数字填入</div>
@@ -364,7 +366,7 @@ body{
           </svg>
           <div class="donut-c"><b id="m-p-v">0</b><small>g</small></div>
         </div>
-        <div class="macro-name"><span class="pf-tag t-p">P</span>蛋白质 <span class="macro-goal">/ <span id="m-p-g">120</span>g</span></div>
+        <div class="macro-name"><span class="mtag c-p"></span>蛋白质 <span class="macro-goal">/ <span id="m-p-g">120</span>g</span></div>
       </div>
       <div class="macro m-c">
         <div class="donut">
@@ -374,7 +376,7 @@ body{
           </svg>
           <div class="donut-c"><b id="m-c-v">0</b><small>g</small></div>
         </div>
-        <div class="macro-name"><span class="pf-tag t-c">C</span>碳水 <span class="macro-goal">/ <span id="m-c-g">200</span>g</span></div>
+        <div class="macro-name"><span class="mtag c-c"></span>碳水 <span class="macro-goal">/ <span id="m-c-g">200</span>g</span></div>
       </div>
       <div class="macro m-f">
         <div class="donut">
@@ -384,7 +386,7 @@ body{
           </svg>
           <div class="donut-c"><b id="m-f-v">0</b><small>g</small></div>
         </div>
-        <div class="macro-name"><span class="pf-tag t-f">F</span>脂肪 <span class="macro-goal">/ <span id="m-f-g">55</span>g</span></div>
+        <div class="macro-name"><span class="mtag c-f"></span>脂肪 <span class="macro-goal">/ <span id="m-f-g">55</span>g</span></div>
       </div>
     </div>
 
@@ -562,10 +564,10 @@ body{
           <div class="f-field">
             <label>餐次</label>
             <select id="f-meal">
-              <option value="breakfast">🌅 早餐</option>
-              <option value="lunch">☀️ 午餐</option>
-              <option value="dinner">🌙 晚餐</option>
-              <option value="snack">🍿 加餐/零食</option>
+              <option value="breakfast">早餐</option>
+              <option value="lunch">午餐</option>
+              <option value="dinner">晚餐</option>
+              <option value="snack">加餐 / 零食</option>
             </select>
           </div>
           <div class="f-field">
@@ -633,7 +635,7 @@ body{
 </div>
 
 <!-- ============ 首次引导 ============ -->
-<div id="onboard">
+<div id="onboard"><div class="ob-inner">
   <div class="ob-logo">🥗</div>
   <div class="ob-title">热量管家</div>
   <div class="ob-sub">拍照记录每一餐，看着数字瘦下来<br>先花 1 分钟告诉我你的情况</div>
@@ -651,7 +653,7 @@ body{
     <div class="calc-tip" id="ob-tip">填好后，我会帮你算出每天该吃多少千卡</div>
     <button class="save-btn" id="ob-start">开始减肥之旅</button>
   </div>
-</div>
+</div></div>
 
 <!-- ============ 常用食物管理 ============ -->
 <div class="foods-mgr-mask" id="foods-mgr-mask">
@@ -676,7 +678,7 @@ const pad=n=>String(n).padStart(2,'0');
 const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const todayKey=()=>dateKey(new Date());
 const fmtDate=dk=>{const[y,m,d]=dk.split('-');return `${y}年${m}月${d}日`};
-const MEALS={breakfast:{n:'早餐',em:'🌅'},lunch:{n:'午餐',em:'☀️'},dinner:{n:'晚餐',em:'🌙'},snack:{n:'加餐/零食',em:'🍿'}};
+const MEALS={breakfast:{n:'早餐',cls:'c-bf'},lunch:{n:'午餐',cls:'c-lunch'},dinner:{n:'晚餐',cls:'c-dinner'},snack:{n:'加餐',cls:'c-snack'}};
 const MEAL_ORDER=['breakfast','lunch','dinner','snack'];
 function guessMeal(){const h=new Date().getHours();if(h<10)return'breakfast';if(h<14)return'lunch';if(h<21)return'dinner';return'snack'}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2200)}
@@ -696,11 +698,13 @@ const DB={db:null,
 };
 
 /* ================= 常用食物库 ================= */
-/* 每值均为每100克含量：kcal千卡 p/c/f/sugar/fiber克 sodium毫克 */
+/* 每值均为每100克含量：kcal千卡 p/c/f/sugar/fiber克 sodium毫克（前三个为用户实测常吃，排最前） */
 const FOODS_BUILTIN=[
-  {name:'燕麦(干)',kcal:367,p:15,c:61,f:7,sugar:1.5,sodium:8,fiber:10},
+  {name:'牛奶(光明纯牛奶)',kcal:64,p:3.2,c:4.8,f:3.6,sugar:4.8,sodium:60,fiber:null},
+  {name:'去皮鸭腿',kcal:186,p:32.9,c:2.3,f:4.8,sugar:null,sodium:581,fiber:null},
+  {name:'高蛋白燕麦片',kcal:370,p:14.7,c:53.3,f:8.0,sugar:null,sodium:0,fiber:12.1},
+  {name:'三色米(干)',kcal:356,p:8.1,c:74.6,f:2.3,sugar:null,sodium:0,fiber:null},
   {name:'鸡蛋',kcal:143,p:12.6,c:1.5,f:9.5,sugar:1,sodium:142,fiber:null},
-  {name:'牛奶(全脂)',kcal:65,p:3.4,c:5,f:3.8,sugar:5,sodium:44,fiber:null},
   {name:'水煮西兰花',kcal:35,p:2.4,c:4.3,f:0.6,sugar:1.7,sodium:41,fiber:3.3},
   {name:'彩椒(红)',kcal:31,p:1,c:6,f:0.3,sugar:4.2,sodium:4,fiber:2.1},
   {name:'西红柿',kcal:18,p:0.9,c:3.9,f:0.2,sugar:2.6,sodium:5,fiber:1.2},
@@ -711,8 +715,16 @@ const FOODS_BUILTIN=[
   {name:'苹果',kcal:52,p:0.3,c:14,f:0.2,sugar:10,sodium:1,fiber:2.4},
   {name:'黄瓜',kcal:15,p:0.7,c:3.6,f:0.1,sugar:1.7,sodium:2,fiber:0.5}
 ];
+const FOODS_VER=3;
 let foods=LS.get('kcal_foods',null);
-if(!foods||!Array.isArray(foods)||!foods.length){foods=FOODS_BUILTIN.map(f=>Object.assign({},f,{builtin:true}));LS.set('kcal_foods',foods)}
+if(!foods||!Array.isArray(foods)||!foods.length){
+  foods=FOODS_BUILTIN.map(f=>Object.assign({},f,{builtin:true}));
+  LS.set('kcal_foods',foods);LS.set('kcal_foods_ver',FOODS_VER);
+}else if(LS.get('kcal_foods_ver',0)<FOODS_VER){
+  const customs=foods.filter(f=>!f.builtin);
+  foods=FOODS_BUILTIN.map(f=>Object.assign({},f,{builtin:true})).concat(customs);
+  LS.set('kcal_foods',foods);LS.set('kcal_foods_ver',FOODS_VER);
+}
 
 /* ================= 状态 ================= */
 let settings=LS.get('kcal_settings',null);
@@ -795,7 +807,7 @@ function renderToday(){
   exK.textContent=ex;exK.classList.toggle('zero',!(ex>0));
   $('#ex-edit-btn').textContent=ex>0?'修改':'填写';
   const st=streakDays();
-  if(st>0){$('#streak').style.display='flex';$('#streak-num').textContent=st}else $('#streak').style.display='none';
+  if(st>0){$('#streak').style.display='inline-flex';$('#streak-num').textContent=st}else $('#streak').style.display='none';
   // 餐次列表
   const box=$('#today-meals');const dr=dayRecords(dk);
   if(!dr.length){box.innerHTML=`<div class="empty-tip"><div class="big">🍽️</div>今天还没记录<br>点下方 <b style="color:var(--green)">＋</b> 拍下你的第一餐</div>`;return}
@@ -804,7 +816,7 @@ function renderToday(){
     const items=dr.filter(r=>r.meal===m);
     if(!items.length)continue;
     const mk=items.reduce((a,r)=>a+r.totals.kcal,0);
-    html+=`<div class="meal-group"><div class="meal-head"><div class="meal-name"><span class="em">${MEALS[m].em}</span>${MEALS[m].n}</div><div class="meal-sum">${items.length}项 · ${Math.round(mk)}千卡</div></div>`;
+    html+=`<div class="meal-group"><div class="meal-head"><div class="meal-name"><span class="mtag ${MEALS[m].cls}"></span>${MEALS[m].n}</div><div class="meal-sum">${items.length}项 · ${Math.round(mk)}千卡</div></div>`;
     for(const r of items){
       html+=`<div class="rec-card" data-id="${r.id}">
         <img class="rec-thumb" data-photo="${r.photoId}" alt="">
@@ -994,9 +1006,9 @@ async function openDetail(id){
   const url=await DB.getPhoto(r.photoId);
   const d=new Date(r.ts);
   const optBits=[];
-  if(r.totals.sugar!=null)optBits.push(`<div class="d-item"><div class="k">🍬 糖</div><div class="v" style="color:var(--red)">${Math.round(r.totals.sugar)}<small> g</small></div></div>`);
-  if(r.totals.sodium!=null)optBits.push(`<div class="d-item"><div class="k">🧂 钠</div><div class="v" style="color:var(--ink2)">${Math.round(r.totals.sodium)}<small> mg</small></div></div>`);
-  if(r.totals.fiber!=null)optBits.push(`<div class="d-item"><div class="k">🌾 膳食纤维</div><div class="v" style="color:var(--green-dk)">${Math.round(r.totals.fiber)}<small> g</small></div></div>`);
+  if(r.totals.sugar!=null)optBits.push(`<div class="d-item"><div class="k"><span class="mtag big c-sugar"></span>糖</div><div class="v" style="color:var(--red)">${Math.round(r.totals.sugar)}<small> g</small></div></div>`);
+  if(r.totals.sodium!=null)optBits.push(`<div class="d-item"><div class="k"><span class="mtag big c-na"></span>钠</div><div class="v" style="color:var(--ink2)">${Math.round(r.totals.sodium)}<small> mg</small></div></div>`);
+  if(r.totals.fiber!=null)optBits.push(`<div class="d-item"><div class="k"><span class="mtag big c-fiber"></span>膳食纤维</div><div class="v" style="color:var(--green-dk)">${Math.round(r.totals.fiber)}<small> g</small></div></div>`);
   const perOptBits=[];
   if(r.per100.sugar!=null)perOptBits.push(`糖 ${Math.round(r.per100.sugar)}g`);
   if(r.per100.sodium!=null)perOptBits.push(`钠 ${Math.round(r.per100.sodium)}mg`);
@@ -1005,15 +1017,15 @@ async function openDetail(id){
   $('#detail-card').innerHTML=`
     ${url?`<img class="detail-photo" src="${url}">`:''}
     <div class="detail-name">${esc(r.name)}</div>
-    <div class="detail-sub">${MEALS[r.meal].em} ${MEALS[r.meal].n} · ${fmtDate(r.date)} ${pad(d.getHours())}:${pad(d.getMinutes())} · ${r.grams}克</div>
+    <div class="detail-sub"><span class="mtag ${MEALS[r.meal].cls}"></span>${MEALS[r.meal].n} · ${fmtDate(r.date)} ${pad(d.getHours())}:${pad(d.getMinutes())} · ${r.grams}克</div>
     <div class="d-grid">
-      <div class="d-item"><div class="k">🔥 能量</div><div class="v" style="color:var(--green-dk)">${Math.round(r.totals.kcal)}<small> 千卡</small></div></div>
-      <div class="d-item"><div class="k"><span class="pf-tag big t-p">P</span> 蛋白质</div><div class="v" style="color:var(--blue)">${Math.round(r.totals.p)}<small> g</small></div></div>
-      <div class="d-item"><div class="k"><span class="pf-tag big t-c">C</span> 碳水</div><div class="v" style="color:var(--orange)">${Math.round(r.totals.c)}<small> g</small></div></div>
-      <div class="d-item"><div class="k"><span class="pf-tag big t-f">F</span> 脂肪</div><div class="v" style="color:var(--purple)">${Math.round(r.totals.f)}<small> g</small></div></div>
+      <div class="d-item"><div class="k"><span class="mtag big c-kcal"></span>能量</div><div class="v" style="color:var(--green-dk)">${Math.round(r.totals.kcal)}<small> 千卡</small></div></div>
+      <div class="d-item"><div class="k"><span class="mtag big c-p"></span>蛋白质</div><div class="v" style="color:var(--blue)">${Math.round(r.totals.p)}<small> g</small></div></div>
+      <div class="d-item"><div class="k"><span class="mtag big c-c"></span>碳水</div><div class="v" style="color:var(--orange)">${Math.round(r.totals.c)}<small> g</small></div></div>
+      <div class="d-item"><div class="k"><span class="mtag big c-f"></span>脂肪</div><div class="v" style="color:var(--purple)">${Math.round(r.totals.f)}<small> g</small></div></div>
     </div>
     ${optBits.length?`<div class="d-grid" style="grid-template-columns:repeat(${optBits.length},1fr)">${optBits.join('')}</div>`:''}
-    <div class="d-item" style="margin-bottom:14px"><div class="k">📋 每100克含量</div>
+    <div class="d-item" style="margin-bottom:14px"><div class="k"><span class="mtag big c-na"></span>每100克含量</div>
       <div style="font-size:13px;color:var(--ink2);margin-top:4px">能量 ${Math.round(r.per100.kcal)}千卡 · 蛋白 ${Math.round(r.per100.p)}g · 碳水 ${Math.round(r.per100.c)}g · 脂肪 ${Math.round(r.per100.f)}g${perOpt}</div>
       <div style="font-size:11px;color:var(--ink3);margin-top:4px">热量已按「宁多勿少」向上取整到10千卡</div></div>
     <div class="btn-row"><button class="btn-ghost" id="dt-close">关闭</button><button class="btn-danger" id="dt-del">删除记录</button></div>`;
@@ -1075,7 +1087,7 @@ function renderHistDay(){
   let html='';
   for(const m of MEAL_ORDER){
     const items=dr.filter(r=>r.meal===m);if(!items.length)continue;
-    html+=`<div class="meal-group"><div class="meal-head"><div class="meal-name"><span class="em">${MEALS[m].em}</span>${MEALS[m].n}</div></div>`;
+    html+=`<div class="meal-group"><div class="meal-head"><div class="meal-name"><span class="mtag ${MEALS[m].cls}"></span>${MEALS[m].n}</div></div>`;
     for(const r of items){
       html+=`<div class="rec-card" data-id="${r.id}"><img class="rec-thumb" data-photo="${r.photoId}" alt="">
         <div class="rec-info"><div class="rec-name">${esc(r.name)}</div><div class="rec-meta">${r.grams}克</div></div>
