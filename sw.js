@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kcalapp-v1';
+const CACHE_NAME = 'kcalapp-v2';
 const ASSETS = [
   './',
   './index.html',
