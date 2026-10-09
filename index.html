@@ -551,7 +551,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.6 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.7 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -744,6 +744,27 @@ body{
 
 <script>
 "use strict";
+/* ================= 安卓返回键：关闭弹层而非退出 ================= */
+let layerStack=[];
+let suppressPop=false;
+function openLayer(id,closeFn){
+  layerStack.push({id,closeFn});
+  history.pushState({appLayer:id},'');
+}
+function closeLayer(id){
+  const idx=layerStack.findIndex(l=>l.id===id);
+  if(idx<0)return;
+  const item=layerStack.splice(idx,1)[0];
+  item.closeFn();
+  suppressPop=true;
+  history.back();
+}
+window.addEventListener('popstate',()=>{
+  if(suppressPop){suppressPop=false;return}
+  const top=layerStack.pop();
+  if(top)top.closeFn();
+});
+
 /* ================= 基础工具 ================= */
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};
@@ -932,10 +953,11 @@ function openAdd(){
   $('#step-form').style.display='none';
   $('#add-title').textContent='记录这一餐';
   sheetOpen(true);
+  openLayer('add',()=>sheetOpen(false));
 }
 function sheetOpen(o){$('#sheet-add').classList.toggle('open',o);document.body.style.overflow=o?'hidden':''}
 $('#btn-add').addEventListener('click',openAdd);
-$('#add-close').addEventListener('click',()=>sheetOpen(false));
+$('#add-close').addEventListener('click',()=>closeLayer('add'));
 $('#cam-frame').addEventListener('click',()=>$('#photo-input').click());
 $('#cam-btn').addEventListener('click',()=>$('#photo-input').click());
 
@@ -1071,7 +1093,7 @@ $('#btn-save').addEventListener('click',async()=>{
   const rec={id:uid(),date:todayKey(),ts:Date.now(),meal:$('#f-meal').value,name:$('#f-name').value.trim(),
     grams:t.grams,per100:t.per100,totals:t.totals,photoId:adding.photoId};
   records.push(rec);LS.set('kcal_records',records);
-  sheetOpen(false);
+  closeLayer('add');
   toast(`已记录 · ${t.totals.kcal} 千卡`);
   renderToday();
   DB.usage().then(u=>{$('#store-usage').textContent=u>3.5*1024*1024?`⚠️ 存储已用 ${(u/1024/1024).toFixed(1)}MB，建议导出备份`:`数据占手机存储 ${(u/1024).toFixed(0)}KB`});
@@ -1107,17 +1129,17 @@ async function openDetail(id){
       <div style="font-size:11px;color:var(--ink3);margin-top:4px">热量已按「宁多勿少」向上取整到10千卡</div></div>
     <div class="btn-row"><button class="btn-ghost" id="dt-close">关闭</button><button class="btn-danger" id="dt-del">删除记录</button></div>`;
   $('#detail-mask').classList.add('open');document.body.style.overflow='hidden';
-  $('#dt-close').addEventListener('click',closeDetail);
+  openLayer('detail',closeDetail);
+  $('#dt-close').addEventListener('click',()=>closeLayer('detail'));
   $('#dt-del').addEventListener('click',()=>{
     if(!confirm(`确定删除「${r.name}」吗？照片也会一起删除`))return;
     records=records.filter(x=>x.id!==id);LS.set('kcal_records',records);
     DB.delPhoto(r.photoId);
-    closeDetail();renderToday();renderHist();
+    closeLayer('detail');renderToday();renderHist();
     toast('已删除');
   });
 }
 function closeDetail(){$('#detail-mask').classList.remove('open');document.body.style.overflow=''}
-
 /* ================= 历史 ================= */
 $('#cal-prev').addEventListener('click',()=>{calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()-1,1);renderHist()});
 $('#cal-next').addEventListener('click',()=>{const now=new Date();if(calCursor.getFullYear()===now.getFullYear()&&calCursor.getMonth()===now.getMonth())return;calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()+1,1);renderHist()});
@@ -1196,26 +1218,28 @@ $('#wt-save').addEventListener('click',()=>{
 $('#btn-import-wt').addEventListener('click',()=>{
   $('#import-wt-text').value='';
   $('#import-wt-mask').classList.add('open');document.body.style.overflow='hidden';
+  openLayer('importwt',closeImportWt);
 });
-$('#import-wt-close').addEventListener('click',closeImportWt);
-$('#import-wt-mask').addEventListener('click',e=>{if(e.target.id==='import-wt-mask')closeImportWt()});
+$('#import-wt-close').addEventListener('click',()=>closeLayer('importwt'));
+$('#import-wt-mask').addEventListener('click',e=>{if(e.target.id==='import-wt-mask')closeLayer('importwt')});
 function closeImportWt(){$('#import-wt-mask').classList.remove('open');document.body.style.overflow=''}
 $('#import-wt-go').addEventListener('click',()=>{
   const rows=parseWtText($('#import-wt-text').value);
   if(!rows.length){toast('没有识别到有效数据，检查格式');return}
   const {add,upd}=upsertWeights(rows);
-  closeImportWt();renderWeight();
+  closeLayer('importwt');renderWeight();
   toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
 });
 $('#btn-zepp').addEventListener('click',()=>{
-  closeImportWt();
+  closeLayer('importwt');
   zeppRows=[];
   $('#zepp-imgs').innerHTML='';$('#zepp-results').innerHTML='';
   $('#zepp-import').style.display='none';$('#zepp-import').disabled=true;
   $('#zepp-mask').classList.add('open');document.body.style.overflow='hidden';
+  openLayer('zepp',closeZepp);
 });
-$('#zepp-close').addEventListener('click',closeZepp);
-$('#zepp-mask').addEventListener('click',e=>{if(e.target.id==='zepp-mask')closeZepp()});
+$('#zepp-close').addEventListener('click',()=>closeLayer('zepp'));
+$('#zepp-mask').addEventListener('click',e=>{if(e.target.id==='zepp-mask')closeLayer('zepp')});
 function closeZepp(){$('#zepp-mask').classList.remove('open');document.body.style.overflow=''}
 
 /* ===== AI 截图识别（智谱 GLM-4.6V-Flash） ===== */
@@ -1331,7 +1355,7 @@ $('#zepp-import').addEventListener('click',()=>{
   const rows=zeppRows.filter(r=>r.date&&r.kg>=20&&r.kg<=400);
   if(!rows.length)return;
   const {add,upd}=upsertWeights(rows);
-  closeZepp();renderWeight();
+  closeLayer('zepp');renderWeight();
   toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
 });
 function upsertWeights(rows){
@@ -1562,12 +1586,13 @@ $('#btn-clear').addEventListener('click',()=>{
 
 /* ================= 常用食物管理 ================= */
 $('#btn-foods-mgr').addEventListener('click',openFoodsMgr);
-$('#foods-mgr-close').addEventListener('click',closeFoodsMgr);
-$('#foods-mgr-mask').addEventListener('click',e=>{if(e.target.id==='foods-mgr-mask')closeFoodsMgr()});
+$('#foods-mgr-close').addEventListener('click',()=>closeLayer('foods'));
+$('#foods-mgr-mask').addEventListener('click',e=>{if(e.target.id==='foods-mgr-mask')closeLayer('foods')});
 function closeFoodsMgr(){$('#foods-mgr-mask').classList.remove('open')}
 function openFoodsMgr(){
   renderFoodsMgr();
   $('#foods-mgr-mask').classList.add('open');
+  openLayer('foods',closeFoodsMgr);
 }
 function renderFoodsMgr(){
   const list=$('#foods-mgr-list');
@@ -1640,11 +1665,18 @@ if('serviceWorker' in navigator && location.protocol==='https:'){
 }
 
 /* ================= 启动 ================= */
-$('#detail-mask').addEventListener('click',e=>{if(e.target.id==='detail-mask')closeDetail()});
+$('#detail-mask').addEventListener('click',e=>{if(e.target.id==='detail-mask')closeLayer('detail')});
 (function init(){
   if(!settings){$('#onboard').classList.add('open');return}
   renderToday();
   DB.usage().then(u=>{$('#store-usage').textContent=`数据占手机存储 ${(u/1024).toFixed(0)}KB`});
+  fetch('./index.html',{cache:'no-store',headers:{accept:'text/html'}}).then(r=>r.ok?r.text():null).then(t=>{
+    if(!t)return;
+    const m=t.match(/热量管家 (v[\d.]+) ·/);
+    if(m&&!document.querySelector('.about').textContent.includes(m[1])){
+      toast(`发现新版本 ${m[1]}，完全关闭App再打开即更新`);
+    }
+  }).catch(()=>{});
 })();
 </script>
 </body>
