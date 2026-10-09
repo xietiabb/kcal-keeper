@@ -59,9 +59,8 @@ body{
 .ring-wrap{width:198px;height:198px;margin:8px auto 4px;position:relative}
 .ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring-kcal{font-size:40px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.ring-kcal small{font-size:13px;font-weight:500;color:var(--ink3);letter-spacing:0}
-.ring-label{font-size:12px;color:var(--ink2);margin-top:2px}
+.ring-kcal{font-size:38px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.15}
+.ring-goal-line{font-size:13px;color:var(--ink2);margin-top:1px;font-variant-numeric:tabular-nums}
 .ring-remain{margin-top:6px;font-size:13px;font-weight:700;padding:3px 12px;border-radius:999px;background:var(--green-lt);color:var(--green-dk)}
 .ring-remain.over{background:var(--red-lt);color:var(--red)}
 .over-banner{display:none;margin-top:12px;background:var(--red-lt);color:var(--red);border-radius:12px;padding:10px;font-size:13px;font-weight:700}
@@ -342,7 +341,7 @@ body{
         <svg viewBox="0 0 200 200">
           <defs>
             <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#0D9463"/><stop offset="100%" stop-color="#047857"/>
+              <stop offset="0%" stop-color="#FF6B81"/><stop offset="20%" stop-color="#FF9F43"/><stop offset="40%" stop-color="#FFD93D"/><stop offset="62%" stop-color="#6BCB77"/><stop offset="82%" stop-color="#4D96FF"/><stop offset="100%" stop-color="#9B59B6"/>
             </linearGradient>
           </defs>
           <circle cx="100" cy="100" r="88" fill="none" stroke="var(--line)" stroke-width="13"/>
@@ -350,8 +349,8 @@ body{
           <circle id="ring-over" cx="100" cy="100" r="88" fill="none" stroke="var(--red)" stroke-width="13" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="552.9" style="display:none"/>
         </svg>
         <div class="ring-center">
-          <div class="ring-kcal"><span id="kcal-eaten">0</span><small> / <span id="kcal-goal">2000</span> 千卡</small></div>
-          <div class="ring-label">已摄入 / 目标</div>
+          <div class="ring-kcal"><span id="kcal-eaten">0</span></div>
+          <div class="ring-goal-line">/ <span id="kcal-goal">2000</span> 千卡</div>
           <div class="ring-remain" id="ring-remain">还能吃 2000 千卡</div>
         </div>
       </div>
@@ -551,7 +550,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.7 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.7.1 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
