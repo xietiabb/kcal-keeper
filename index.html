@@ -83,6 +83,8 @@ body{
 .donut-c small{font-size:10px;color:var(--ink3);margin-left:1px}
 .macro-name{font-size:12px;color:var(--ink);margin-top:9px;font-weight:700}
 .macro-goal{font-size:10.5px;color:var(--ink3);font-weight:400}
+.macro-remain{font-size:11.5px;font-weight:800;margin-top:3px;color:var(--green);font-variant-numeric:tabular-nums}
+.macro-remain.over{color:var(--red)}
 .mtag{display:inline-block;width:4px;height:13px;border-radius:2px;margin-right:6px;vertical-align:-1.5px}
 .mtag.big{height:15px;vertical-align:-2.5px}
 .c-p{background:var(--blue)} .c-c{background:var(--orange)} .c-f{background:var(--purple)}
@@ -367,6 +369,7 @@ body{
           <div class="donut-c"><b id="m-p-v">0</b><small>g</small></div>
         </div>
         <div class="macro-name"><span class="mtag c-p"></span>蛋白质 <span class="macro-goal">/ <span id="m-p-g">120</span>g</span></div>
+        <div class="macro-remain" id="m-p-remain">还能吃 --</div>
       </div>
       <div class="macro m-c">
         <div class="donut">
@@ -377,6 +380,7 @@ body{
           <div class="donut-c"><b id="m-c-v">0</b><small>g</small></div>
         </div>
         <div class="macro-name"><span class="mtag c-c"></span>碳水 <span class="macro-goal">/ <span id="m-c-g">200</span>g</span></div>
+        <div class="macro-remain" id="m-c-remain">还能吃 --</div>
       </div>
       <div class="macro m-f">
         <div class="donut">
@@ -387,6 +391,7 @@ body{
           <div class="donut-c"><b id="m-f-v">0</b><small>g</small></div>
         </div>
         <div class="macro-name"><span class="mtag c-f"></span>脂肪 <span class="macro-goal">/ <span id="m-f-g">55</span>g</span></div>
+        <div class="macro-remain" id="m-f-remain">还能吃 --</div>
       </div>
     </div>
 
@@ -508,7 +513,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.2 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.3 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -792,16 +797,19 @@ function renderToday(){
     const b=$('#over-banner');if(!b.classList.contains('show'))b.classList.remove('show');
     requestAnimationFrame(()=>$('#over-banner').classList.add('show'))}
   const DN=2*Math.PI*34;
-  const setD=(fgSel,vSel,v,g)=>{
+  const setD=(fgSel,vSel,rmSel,v,g)=>{
     const dfg=$(fgSel),p=Math.min(v/(g||1),1);
     dfg.style.strokeDashoffset=DN*(1-p);
     const over=v>g;
     dfg.classList.toggle('over',over);
     const b=$(vSel);b.textContent=Math.round(v);b.classList.toggle('over',over);
+    const rm=$(rmSel);
+    if(over){rm.textContent=`已超 ${Math.round(v-g)}g`;rm.classList.add('over')}
+    else{rm.textContent=`还能吃 ${Math.round(g-v)}g`;rm.classList.remove('over')}
   };
-  setD('#d-p','#m-p-v',sum.p,goals.p);
-  setD('#d-c','#m-c-v',sum.c,goals.c);
-  setD('#d-f','#m-f-v',sum.f,goals.f);
+  setD('#d-p','#m-p-v','#m-p-remain',sum.p,goals.p);
+  setD('#d-c','#m-c-v','#m-c-remain',sum.c,goals.c);
+  setD('#d-f','#m-f-v','#m-f-remain',sum.f,goals.f);
   $('#m-p-g').textContent=goals.p;$('#m-c-g').textContent=goals.c;$('#m-f-g').textContent=goals.f;
   const exK=$('#ex-kcal');
   exK.textContent=ex;exK.classList.toggle('zero',!(ex>0));
