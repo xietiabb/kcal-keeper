@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.xietiabb.kcalkeeper",
+    "sha256_cert_fingerprints": ["903efe30265d3e0d0d6beda83f059cd127cace0afc68d89f3fe5751f96fd0015"]
+  }
+}]
