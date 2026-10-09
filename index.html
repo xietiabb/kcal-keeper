@@ -227,6 +227,25 @@ body{
 .weight-add{display:flex;gap:10px;margin-bottom:14px}
 .weight-add input{flex:1}
 .weight-add button{padding:0 22px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
+.mm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--card);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.mm-grid .f-field{margin:0}
+.mm-grid input{padding:9px 6px;font-size:14px;text-align:center}
+.mm-grid label{font-size:10px;justify-content:center;display:flex}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.metric-cell{background:var(--bg);border-radius:12px;padding:10px 4px 8px;text-align:center;cursor:pointer;border:1px solid var(--line)}
+.metric-cell .v{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric-cell .v small{font-size:9px;color:var(--ink3);font-weight:400}
+.metric-cell .v.none{color:var(--ink3);font-size:12px;font-weight:600}
+.metric-cell .k{font-size:10px;color:var(--ink2);margin-top:3px}
+.metric-cell .trend{font-size:9px;font-weight:700;margin-top:1px}
+.metric-cell .trend.down{color:var(--green)} .metric-cell .trend.up{color:var(--red)}
+.ex-stats{display:flex;width:100%;margin-top:10px}
+.ex-stat{flex:1;text-align:center;padding:6px 2px;border-right:1px solid var(--line)}
+.ex-stat:last-child{border-right:none}
+.ex-stat .v{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--blue)}
+.ex-stat .v small{font-size:10px;font-weight:400}
+.ex-stat .k{font-size:10px;color:var(--ink3);margin-top:1px}
+.ex-input-row input{min-width:0}
 .wt-legend{display:flex;justify-content:center;gap:18px;font-size:11px;color:var(--ink2);margin-top:6px}
 .wt-legend span{display:flex;align-items:center;gap:5px}
 .wt-legend i{width:14px;height:3.5px;border-radius:2px;display:inline-block}
@@ -243,6 +262,9 @@ body{
 .zepp-res-row input:focus{outline:none;border-color:var(--green)}
 .zepp-res-row input::-webkit-calendar-picker-indicator{filter:invert(.5)}
 .zepp-del{border:none;background:var(--red-lt);color:var(--red);border-radius:10px;height:40px;font-size:14px;cursor:pointer;font-family:inherit}
+.zepp-body-card{background:var(--card);border-radius:14px;padding:10px 10px 6px;margin-bottom:10px;box-shadow:var(--shadow)}
+.zrow-cap{font-size:11px;color:var(--ink3);font-weight:700;margin:2px 2px 8px}
+.zepp-body-card .zepp-res-row{margin-bottom:8px}
 .wt-list .fat{color:var(--red);font-weight:700}
 .wt-chart-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 14px;margin-bottom:14px}
 .wt-goal-card{background:linear-gradient(135deg,#0D9463,#047857);border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:14px}
@@ -361,17 +383,25 @@ body{
       <div class="ex-left">
         <span class="ex-ico"><svg viewBox="0 0 24 24" width="21" height="21"><path d="M13.2 1.8 4.2 13.6h5.1L8.1 22.2 19.8 8.9h-6.2l-.4-7.1Z" fill="var(--blue)"/></svg></span>
         <div>
-          <div class="ex-name">手表运动消耗</div>
-          <div class="ex-sub">从手表/小米运动健康抄数字填入</div>
+          <div class="ex-name">手表数据（Zepp）</div>
+          <div class="ex-sub">从手表/Zepp Life 抄数字填入</div>
         </div>
       </div>
       <div class="ex-right" id="ex-display">
         <b id="ex-kcal">0</b><small>千卡</small>
         <span class="ex-edit-btn" id="ex-edit-btn">填写</span>
       </div>
+      <div class="ex-stats" id="ex-stats">
+        <div class="ex-stat"><div class="v" id="ex-steps-v">0</div><div class="k">步数</div></div>
+        <div class="ex-stat"><div class="v" id="ex-sleep-v">0<small>h</small></div><div class="k">睡眠</div></div>
+        <div class="ex-stat"><div class="v" id="ex-kcal-v">0</div><div class="k">消耗千卡</div></div>
+      </div>
       <div class="ex-input-row" id="ex-input-row" style="display:none">
-        <input type="number" id="ex-input" placeholder="今日运动消耗" min="0" step="10">
+        <input type="number" id="ex-input" placeholder="运动消耗" min="0" step="10">
         <span class="ex-unit">千卡</span>
+        <input type="number" id="ex-steps" placeholder="步数" min="0" step="100">
+        <input type="number" id="ex-sleep" placeholder="睡眠" min="0" step="10">
+        <span class="ex-unit">分</span>
         <button id="ex-save">✓</button>
       </div>
     </div>
@@ -454,13 +484,27 @@ body{
     </div>
     <div class="weight-add">
       <div class="f-field" style="margin:0;flex:1">
-        <div class="unit-wrap"><input type="number" id="wt-input" step="0.1" placeholder="今天的体重"><span class="unit">kg</span></div>
+        <div class="unit-wrap"><input type="number" id="wt-input" step="0.1" placeholder="体重 kg"><span class="unit">kg</span></div>
       </div>
-      <div class="f-field" style="margin:0;flex:0 0 108px">
-        <div class="unit-wrap"><input type="number" id="wt-fat" step="0.1" min="3" max="70" placeholder="体脂率"><span class="unit">%</span></div>
+      <div class="f-field" style="margin:0;flex:0 0 104px">
+        <div class="unit-wrap"><input type="number" id="wt-fat" step="0.1" min="3" max="70" placeholder="体脂%"><span class="unit">%</span></div>
       </div>
       <button id="wt-save">记录</button>
     </div>
+    <button class="btn-line small" id="btn-more-metrics" style="width:100%;margin:-4px 0 14px">＋ 填身体成分（水分/内脏脂肪/肌肉/蛋白/基础代谢/骨量）</button>
+    <div class="more-metrics" id="more-metrics" style="display:none">
+      <div class="mm-grid">
+        <div class="f-field"><label>BMI</label><input type="number" id="wt-bmi" step="0.1" placeholder="自动"></div>
+        <div class="f-field"><label>水分 %</label><input type="number" id="wt-water" step="0.1" placeholder="可选"></div>
+        <div class="f-field"><label>内脏脂肪</label><input type="number" id="wt-visceral" step="0.5" placeholder="可选"></div>
+        <div class="f-field"><label>肌肉 kg</label><input type="number" id="wt-muscle" step="0.1" placeholder="可选"></div>
+        <div class="f-field"><label>蛋白 %</label><input type="number" id="wt-protein" step="0.1" placeholder="可选"></div>
+        <div class="f-field"><label>基础代谢</label><input type="number" id="wt-bmr" step="1" placeholder="可选"></div>
+        <div class="f-field"><label>骨量 kg</label><input type="number" id="wt-bone" step="0.1" placeholder="可选"></div>
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin:2px 0 14px">一天早晚各称一次更好；同一天超过两次自动只留最早和最晚</div>
+    </div>
+
     <div class="wt-chart-card">
       <div class="form-title" style="justify-content:space-between;display:flex">
         <span>📈 体重 · 体脂趋势</span>
@@ -469,6 +513,12 @@ body{
       <svg id="wt-chart" viewBox="0 0 440 180" style="width:100%;display:block"></svg>
       <div class="wt-legend"><span><i style="background:var(--green)"></i>体重 kg</span><span><i style="background:var(--red)"></i>体脂率 %</span></div>
     </div>
+
+    <div class="set-card" style="padding:12px 14px;margin-bottom:14px">
+      <div class="form-title" style="margin-bottom:10px">🧬 身体成分指标（点击查看趋势图）</div>
+      <div class="metric-grid" id="metric-grid"></div>
+    </div>
+
     <div class="wt-latest">
       <div><div style="font-size:12px;color:var(--ink2)">最近一次</div><div style="font-weight:800;font-size:19px" id="wt-last"></div><div style="font-size:11px;color:var(--ink3);margin-top:2px" id="wt-last-date"></div></div>
       <div style="text-align:right"><div style="font-size:12px;color:var(--ink2)">体脂率</div><div style="font-weight:800;font-size:19px;color:var(--red)" id="wt-last-fat">--</div></div>
@@ -550,7 +600,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.7.1 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.8 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -709,6 +759,18 @@ body{
   </div>
 </div>
 
+<!-- ============ 指标趋势图弹层 ============ -->
+<div class="detail-mask" id="chart-mask">
+  <div class="detail-card">
+    <div class="foods-mgr-head">
+      <div class="t" id="chart-title">指标趋势</div>
+      <button class="sheet-x" id="chart-close">✕</button>
+    </div>
+    <svg id="chart-svg" viewBox="0 0 440 230" style="width:100%;display:block"></svg>
+    <div class="calc-tip" id="chart-summary" style="margin:8px 0 0"></div>
+  </div>
+</div>
+
 <!-- ============ 批量导入体重 ============ -->
 <div class="detail-mask" id="import-wt-mask">
   <div class="detail-card">
@@ -861,9 +923,26 @@ function streakDays(){
   return n;
 }
 
-/* ================= 运动消耗 ================= */
-function getExercise(dk){const ex=LS.get('kcal_exercise',{});return +ex[dk]||0}
-function setExercise(dk,v){const ex=LS.get('kcal_exercise',{});if(v>0)ex[dk]=Math.round(v);else delete ex[dk];LS.set('kcal_exercise',ex)}
+/* ================= 手表数据（卡路里/步数/睡眠） ================= */
+function getWatch(dk){
+  const w=LS.get('kcal_watch',null);
+  const old=LS.get('kcal_exercise',null);
+  let v=null;
+  if(w&&w[dk]!=null)v=w[dk];
+  else if(old&&old[dk]!=null)v=old[dk];
+  if(v==null)return{kcal:0,steps:0,sleep:0};
+  if(typeof v==='number')return{kcal:v,steps:0,sleep:0};
+  return{kcal:+v.kcal||0,steps:+v.steps||0,sleep:+v.sleep||0};
+}
+function setWatch(dk,watch){
+  const w=LS.get('kcal_watch',{});
+  if(watch&&(watch.kcal>0||watch.steps>0||watch.sleep>0))w[dk]={kcal:Math.round(watch.kcal),steps:Math.round(watch.steps),sleep:Math.round(watch.sleep)};
+  else delete w[dk];
+  LS.set('kcal_watch',w);
+  const old=LS.get('kcal_exercise',null);
+  if(old&&old[dk]!=null){delete old[dk];LS.set('kcal_exercise',old)}
+}
+function getExercise(dk){return getWatch(dk).kcal}
 
 /* ================= 今日页 ================= */
 function renderToday(){
@@ -903,6 +982,11 @@ function renderToday(){
   const exK=$('#ex-kcal');
   exK.textContent=ex;exK.classList.toggle('zero',!(ex>0));
   $('#ex-edit-btn').textContent=ex>0?'修改':'填写';
+  const watch=getWatch(dk);
+  $('#ex-steps-v').textContent=watch.steps?watch.steps.toLocaleString():'0';
+  const h=Math.floor(watch.sleep/60),mmin=watch.sleep%60;
+  $('#ex-sleep-v').innerHTML=watch.sleep?`${h}<small>h${mmin?' '+mmin+'m':''}</small>`:'0';
+  $('#ex-kcal-v').textContent=watch.kcal;
   const st=streakDays();
   if(st>0){$('#streak').style.display='inline-flex';$('#streak-num').textContent=st}else $('#streak').style.display='none';
   // 餐次列表
@@ -1198,19 +1282,62 @@ function renderHistDay(){
   $('#hist-records').querySelectorAll('.rec-card').forEach(c=>c.addEventListener('click',()=>openDetail(c.dataset.id)));
 }
 
-/* ================= 体重 ================= */
+/* ================= 体重与身体成分 ================= */
+const METRICS=[
+  {k:'fat',n:'体脂率',u:'%',down:true},
+  {k:'bmi',n:'BMI',u:'',down:true},
+  {k:'water',n:'水分率',u:'%'},
+  {k:'visceral',n:'内脏脂肪',u:'级',down:true},
+  {k:'muscle',n:'肌肉量',u:'kg'},
+  {k:'protein',n:'蛋白率',u:'%'},
+  {k:'bmr',n:'基础代谢',u:'千卡'},
+  {k:'bone',n:'骨量',u:'kg'}
+];
+const numIn=(id,min,max)=>{const v=parseFloat($(id).value);return(!isNaN(v)&&v>=min&&v<=max)?v:null};
+function enforceDailyWeights(){
+  const byDate={};
+  weights.forEach(w=>{(byDate[w.date]=byDate[w.date]||[]).push(w)});
+  const out=[];
+  Object.keys(byDate).forEach(dk=>{
+    const arr=byDate[dk].sort((a,b)=>a.ts-b.ts);
+    if(arr.length>2){out.push(arr[0],arr[arr.length-1])}
+    else out.push(...arr);
+  });
+  out.sort((a,b)=>a.date<b.date?-1:(a.date>b.date?1:a.ts-b.ts));
+  weights=out;
+}
+function lastWeightOf(dk){let r=null;weights.forEach(w=>{if(w.date===dk&&(!r||w.ts>r.ts))r=w});return r}
+
+$('#btn-more-metrics').addEventListener('click',()=>{
+  const m=$('#more-metrics');
+  const open=m.style.display!=='none';
+  m.style.display=open?'none':'block';
+  $('#btn-more-metrics').textContent=open?'＋ 填身体成分（水分/内脏脂肪/肌肉/蛋白/基础代谢/骨量）':'－ 收起身体成分';
+});
 $('#wt-save').addEventListener('click',()=>{
   const kg=parseFloat($('#wt-input').value);
   if(!kg||kg<20||kg>300){toast('请输入合理的体重（20-300kg）');return}
-  const fatRaw=parseFloat($('#wt-fat').value);
-  const fat=(fatRaw>=3&&fatRaw<=70)?fatRaw:null;
-  weights=weights.filter(w=>w.date!==todayKey());
-  weights.push({date:todayKey(),ts:Date.now(),kg,fat:fat??undefined});
-  weights.sort((a,b)=>a.date<b.date?-1:1);
+  const rec={date:todayKey(),ts:Date.now(),kg,
+    fat:numIn('#wt-fat',3,70),
+    bmi:numIn('#wt-bmi',10,60),
+    water:numIn('#wt-water',20,80),
+    visceral:numIn('#wt-visceral',1,30),
+    muscle:numIn('#wt-muscle',10,120),
+    protein:numIn('#wt-protein',3,40),
+    bmr:numIn('#wt-bmr',800,4000),
+    bone:numIn('#wt-bone',1,10)};
+  if(rec.bmi==null&&settings.height){
+    const h=settings.height/100;
+    if(h>0.8)rec.bmi=Math.round(kg/(h*h)*10)/10;
+  }
+  Object.keys(rec).forEach(k=>{if(rec[k]==null)delete rec[k]});
+  weights.push(rec);
+  enforceDailyWeights();
   LS.set('kcal_weights',weights);
   settings.weight=kg;LS.set('kcal_settings',settings);
-  $('#wt-input').value='';$('#wt-fat').value='';
-  toast(`已记录 ${kg}kg${fat!=null?` · 体脂${fat}%`:''}`);renderWeight();
+  ['#wt-input','#wt-fat','#wt-bmi','#wt-water','#wt-visceral','#wt-muscle','#wt-protein','#wt-bmr','#wt-bone'].forEach(id=>$(id).value='');
+  toast(`已记录 ${kg}kg${rec.fat!=null?` · 体脂${rec.fat}%`:''}`);
+  renderWeight();
 });
 
 /* ================= 体重批量导入 ================= */
@@ -1222,13 +1349,6 @@ $('#btn-import-wt').addEventListener('click',()=>{
 $('#import-wt-close').addEventListener('click',()=>closeLayer('importwt'));
 $('#import-wt-mask').addEventListener('click',e=>{if(e.target.id==='import-wt-mask')closeLayer('importwt')});
 function closeImportWt(){$('#import-wt-mask').classList.remove('open');document.body.style.overflow=''}
-$('#import-wt-go').addEventListener('click',()=>{
-  const rows=parseWtText($('#import-wt-text').value);
-  if(!rows.length){toast('没有识别到有效数据，检查格式');return}
-  const {add,upd}=upsertWeights(rows);
-  closeLayer('importwt');renderWeight();
-  toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
-});
 $('#btn-zepp').addEventListener('click',()=>{
   closeLayer('importwt');
   zeppRows=[];
@@ -1242,7 +1362,7 @@ $('#zepp-mask').addEventListener('click',e=>{if(e.target.id==='zepp-mask')closeL
 function closeZepp(){$('#zepp-mask').classList.remove('open');document.body.style.overflow=''}
 
 /* ===== AI 截图识别（智谱 GLM-4.6V-Flash） ===== */
-const ZHIPU_PROMPT='你是数据提取助手。这张截图来自体重管理App(Zepp Life)的体重记录页面。请找出图中所有体重记录条目，严格按JSON数组输出，不要输出任何其它文字或代码块标记：[{"date":"YYYY-MM-DD","weight":82.5,"fat":28.5}]。规则：date是该条记录的日期，统一转成YYYY-MM-DD；weight是体重数值(公斤)；fat是体脂率数值(百分号前的数字)，该条没有体脂就填null。只输出JSON数组。';
+const ZHIPU_PROMPT='你是数据提取助手。截图来自Zepp Life或体脂秤App。请识别两类数据并严格输出JSON（不要任何其它文字或代码块标记）：{"body":[{"date":"YYYY-MM-DD","weight":82.5,"fat":28.5,"bmi":27.6,"water":55.2,"visceral":11,"muscle":55.8,"protein":18.2,"bmr":1780,"bone":3.4}],"watch":[{"date":"YYYY-MM-DD","kcal":320,"steps":8500,"sleep":450}]}。规则：body是体重/身体成分记录（weight体重kg必填，fat体脂率%，water水分率%，visceral内脏脂肪等级，muscle肌肉量kg，protein蛋白率%，bmr基础代谢千卡，bone骨量kg，图中没有的字段填null）；watch是运动/手表数据（kcal活动消耗千卡，steps步数，sleep睡眠时长统一换算成分钟如7小时30分=450）；日期统一转YYYY-MM-DD；同类数据按日期从早到晚排列。没有对应类型就输出空数组。只输出JSON。';
 function zhipuKey(){return LS.get('kcal_zhipu_key','')||''}
 $('#zepp-pick').addEventListener('click',()=>$('#zepp-files').click());
 $('#zepp-files').addEventListener('change',async e=>{
@@ -1255,19 +1375,36 @@ $('#zepp-files').addEventListener('change',async e=>{
     $('#zepp-imgs').insertAdjacentHTML('beforeend',`<div class="zepp-img-row" id="${rowId}"><img alt=""><span class="zst">识别中…</span></div>`);
     const thumb=$('#'+rowId+' img'), st=$('#'+rowId+' .zst');
     try{
-      const dataURL=await compressPhotoTo(f,1100,0.8);
+      let dataURL=await compressPhotoTo(f,1100,0.8);
+      if(dataURL.length>2.2*1024*1024)dataURL=await shrinkDataURL(dataURL);
       thumb.src=dataURL;
-      const rows=await zhipuAnalyze(dataURL,key);
-      if(rows.length){
-        rows.forEach(r=>zeppRows.push(r));
-        st.textContent=`识别到 ${rows.length} 条`;st.className='zst ok';
-      }else{st.textContent='未识别到记录';st.className='zst bad'}
+      const res=await zhipuAnalyze(dataURL,key);
+      const nB=(res.body||[]).length,nW=(res.watch||[]).length;
+      (res.body||[]).forEach(r=>zeppRows.push({type:'body',...r}));
+      (res.watch||[]).forEach(r=>zeppRows.push({type:'watch',...r}));
+      if(nB||nW){st.textContent=`识别到 ${nB+nW} 条（身体${nB} 手表${nW}）`;st.className='zst ok'}
+      else{st.textContent='未识别到记录';st.className='zst bad'}
     }catch(err){
       st.textContent='识别失败：'+(err.message||'网络错误');st.className='zst bad';
     }
     renderZeppRows();
   }
 });
+async function shrinkDataURL(dataURL){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      let{width:w,height:h}=img;
+      const r=Math.min(700/w,700/h,1);
+      w=Math.round(w*r);h=Math.round(h*r);
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      res(cv.toDataURL('image/jpeg',0.55));
+    };
+    img.onerror=()=>res(dataURL);
+    img.src=dataURL;
+  });
+}
 async function compressPhotoTo(file,max,q){
   return new Promise(res=>{
     const img=new Image(),url=URL.createObjectURL(file);
@@ -1297,44 +1434,76 @@ async function zhipuAnalyze(dataURL,key){
   });
   if(!resp.ok){
     let msg='HTTP '+resp.status;
-    try{const j=await resp.json();msg=j.error?.message||msg}catch(e){}
+    try{const j=await resp.json();msg=(j.error&&j.error.message)||msg}catch(e){}
     throw new Error(msg);
   }
   const j=await resp.json();
-  const txt=j.choices?.[0]?.message?.content||'';
-  const m=txt.match(/\[[\s\S]*\]/);
-  if(!m)return [];
-  let arr;
-  try{arr=JSON.parse(m[0])}catch(e){return []}
-  const out=[];
-  for(const it of arr){
-    if(!it||typeof it.date!=='string')continue;
-    const dm=it.date.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
-    if(!dm)continue;
-    const dk=`${dm[1]}-${pad(+dm[2])}-${pad(+dm[3])}`;
-    const kg=parseFloat(it.weight);
+  const txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||'';
+  const m=txt.match(/\{[\s\S]*\}/);
+  if(!m)return{body:[],watch:[]};
+  let obj;
+  try{obj=JSON.parse(m[0])}catch(e){return{body:[],watch:[]}}
+  const dkOf=s=>{if(typeof s!=='string')return null;const dm=s.match(/(\d{4})[-\/.年](\d{1,2})[-\/.月](\d{1,2})/);return dm?`${dm[1]}-${pad(+dm[2])}-${pad(+dm[3])}`:null};
+  const body=[];
+  for(const it of (obj.body||[])){
+    const dk=dkOf(it&&it.date);if(!dk||dk>todayKey())continue;
+    const kg=parseFloat(it&&it.weight);
     if(!(kg>=20&&kg<=400))continue;
-    let fat=it.fat==null?null:parseFloat(it.fat);
-    if(fat!=null&&!(fat>=3&&fat<=70))fat=null;
-    if(dk>todayKey())continue;
-    out.push({date:dk,kg,fat});
+    const num=(v,min,max)=>{const x=parseFloat(v);return(!isNaN(x)&&x>=min&&x<=max)?x:null};
+    body.push({date:dk,kg,fat:num(it.fat,3,70),bmi:num(it.bmi,10,60),water:num(it.water,20,80),
+      visceral:num(it.visceral,1,30),muscle:num(it.muscle,10,120),protein:num(it.protein,3,40),
+      bmr:num(it.bmr,800,4000),bone:num(it.bone,1,10)});
   }
-  return out;
+  const watch=[];
+  for(const it of (obj.watch||[])){
+    const dk=dkOf(it&&it.date);if(!dk||dk>todayKey())continue;
+    const kcal=parseFloat(it&&it.kcal),steps=parseFloat(it&&it.steps),sleep=parseFloat(it&&it.sleep);
+    if(isNaN(kcal)&&isNaN(steps)&&isNaN(sleep))continue;
+    watch.push({date:dk,kcal:isNaN(kcal)?0:kcal,steps:isNaN(steps)?0:steps,sleep:isNaN(sleep)?0:sleep});
+  }
+  return{body,watch};
 }
 function renderZeppRows(){
   const box=$('#zepp-results');
   if(!zeppRows.length){box.innerHTML='';updateZeppBtn();return}
-  box.innerHTML=zeppRows.map((r,i)=>`<div class="zepp-res-row">
-    <input type="date" value="${r.date}" data-i="${i}" data-f="date">
-    <input type="number" value="${r.kg}" step="0.1" data-i="${i}" data-f="kg" placeholder="kg">
-    <input type="number" value="${r.fat==null?'':r.fat}" step="0.1" data-i="${i}" data-f="fat" placeholder="体脂%">
-    <button class="zepp-del" data-i="${i}">✕</button>
-  </div>`).join('');
+  box.innerHTML=zeppRows.map((r,i)=>{
+    if(r.type==='watch'){
+      return `<div class="zepp-res-row" style="grid-template-columns:1.25fr 1fr 1.2fr 1.1fr 34px">
+        <input type="date" value="${r.date}" data-i="${i}" data-f="date">
+        <input type="number" value="${r.kcal||''}" data-i="${i}" data-f="kcal" placeholder="消耗">
+        <input type="number" value="${r.steps||''}" data-i="${i}" data-f="steps" placeholder="步数">
+        <input type="number" value="${r.sleep||''}" data-i="${i}" data-f="sleep" placeholder="睡眠分">
+        <button class="zepp-del" data-i="${i}">✕</button></div>
+        <div class="zrow-cap">⌚ 手表数据（千卡/步/分）</div>`;
+    }
+    const f=(k)=>r[k]==null?'':r[k];
+    return `<div class="zepp-body-card">
+      <div class="zrow-cap">🧬 身体成分 · ${r.date}</div>
+      <div class="zepp-res-row" style="grid-template-columns:1.25fr 1fr 1fr 1fr 1fr">
+        <input type="date" value="${r.date}" data-i="${i}" data-f="date">
+        <input type="number" value="${f('kg')}" data-i="${i}" data-f="kg" placeholder="kg">
+        <input type="number" value="${f('fat')}" data-i="${i}" data-f="fat" placeholder="体脂%">
+        <input type="number" value="${f('bmi')}" data-i="${i}" data-f="bmi" placeholder="BMI">
+        <button class="zepp-del" data-i="${i}">✕</button>
+        <span></span>
+      </div>
+      <div class="zepp-res-row" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
+        <input type="number" value="${f('water')}" data-i="${i}" data-f="water" placeholder="水分%">
+        <input type="number" value="${f('visceral')}" data-i="${i}" data-f="visceral" placeholder="内脏">
+        <input type="number" value="${f('muscle')}" data-i="${i}" data-f="muscle" placeholder="肌肉kg">
+        <input type="number" value="${f('protein')}" data-i="${i}" data-f="protein" placeholder="蛋白%">
+        <span></span>
+      </div>
+      <div class="zepp-res-row" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
+        <input type="number" value="${f('bmr')}" data-i="${i}" data-f="bmr" placeholder="基础代谢">
+        <input type="number" value="${f('bone')}" data-i="${i}" data-f="bone" placeholder="骨量kg">
+        <span></span><span></span><span></span>
+      </div></div>`;
+  }).join('');
   box.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{
     const i=+inp.dataset.i,f=inp.dataset.f;
-    if(f==='date')zeppRows[i].date=inp.value;
-    if(f==='kg'){const v=parseFloat(inp.value);zeppRows[i].kg=isNaN(v)?0:v}
-    if(f==='fat'){const v=parseFloat(inp.value);zeppRows[i].fat=isNaN(v)?null:v}
+    const v=parseFloat(inp.value);
+    zeppRows[i][f]=isNaN(v)?(f==='date'?inp.value:null):v;
     updateZeppBtn();
   }));
   box.querySelectorAll('.zepp-del').forEach(b=>b.addEventListener('click',()=>{
@@ -1346,40 +1515,54 @@ function updateZeppBtn(){
   const btn=$('#zepp-import');
   if(!zeppRows.length){btn.style.display='none';return}
   btn.style.display='block';
-  const valid=zeppRows.filter(r=>r.date&&r.kg>=20&&r.kg<=400).length;
+  const valid=zeppRows.filter(r=>r.date&&(r.type==='watch'||(r.kg>=20&&r.kg<=400))).length;
   btn.disabled=!valid;
   btn.textContent=`确认导入 ${valid} 条`;
 }
 $('#zepp-import').addEventListener('click',()=>{
-  const rows=zeppRows.filter(r=>r.date&&r.kg>=20&&r.kg<=400);
-  if(!rows.length)return;
-  const {add,upd}=upsertWeights(rows);
-  closeLayer('zepp');renderWeight();
-  toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
+  let nB=0,nW=0;
+  for(const r of zeppRows){
+    if(r.type==='watch'){
+      if(!r.date)continue;
+      const old=getWatch(r.date);
+      setWatch(r.date,{kcal:r.kcal||old.kcal,steps:r.steps||old.steps,sleep:r.sleep||old.sleep});
+      nW++;
+    }else{
+      if(!r.date||!(r.kg>=20&&r.kg<=400))continue;
+      const rec={date:r.date,ts:new Date(r.date).getTime()+nB*1000,kg:r.kg};
+      ['fat','bmi','water','visceral','muscle','protein','bmr','bone'].forEach(k=>{if(r[k]!=null)rec[k]=r[k]});
+      if(rec.bmi==null&&settings.height){const h=settings.height/100;if(h>0.8)rec.bmi=Math.round(r.kg/(h*h)*10)/10}
+      weights.push(rec);
+      nB++;
+    }
+  }
+  enforceDailyWeights();
+  LS.set('kcal_weights',weights);
+  const last=weights[weights.length-1];
+  if(last){settings.weight=last.kg;LS.set('kcal_settings',settings)}
+  closeLayer('zepp');renderWeight();renderToday();
+  toast(`导入完成：身体成分${nB}条${nW?`、手表${nW}天`:''}`);
 });
 function upsertWeights(rows){
   let add=0,upd=0;
   for(const r of rows){
-    let w=weights.find(x=>x.date===r.date);
-    if(w){w.kg=r.kg;upd++}
-    else{w={date:r.date,ts:new Date(r.date).getTime(),kg:r.kg};weights.push(w);add++}
-    if(r.fat!=null)w.fat=r.fat;
-    else if(w.fat==null)delete w.fat;
+    const same=weights.filter(w=>w.date===r.date);
+    if(same.length){same[same.length-1].kg=r.kg;upd++}
+    else{weights.push({date:r.date,ts:new Date(r.date).getTime(),kg:r.kg});add++}
+    if(r.fat!=null){const w=lastWeightOf(r.date);if(w)w.fat=r.fat}
   }
-  weights.sort((a,b)=>a.date<b.date?-1:1);
+  enforceDailyWeights();
   LS.set('kcal_weights',weights);
   const last=weights[weights.length-1];
   if(last){settings.weight=last.kg;LS.set('kcal_settings',settings)}
   return {add,upd};
 }
-$('#btn-save-key').addEventListener('click',()=>{
-  const k=$('#zhipu-key').value.trim();
-  if(!k){LS.set('kcal_zhipu_key','');$('#key-state').textContent='未设置';toast('密钥已清空');return}
-  if(!k.startsWith('sk-')&&k.length<20){toast('这个不像智谱密钥（sk-开头），检查一下');return}
-  LS.set('kcal_zhipu_key',k);
-  $('#key-state').textContent='已设置 ✓';
-  $('#zhipu-key').value='';
-  toast('密钥已保存，可以截图识别了');
+$('#import-wt-go').addEventListener('click',()=>{
+  const rows=parseWtText($('#import-wt-text').value);
+  if(!rows.length){toast('没有识别到有效数据，检查格式');return}
+  const {add,upd}=upsertWeights(rows);
+  closeLayer('importwt');renderWeight();
+  toast(`导入完成：新增${add}天${upd?`、更新${upd}天`:''}`);
 });
 function parseWtText(txt){
   const out=[];
@@ -1414,13 +1597,71 @@ function renderWeight(){
     $('#wt-last').textContent=`${lw.kg} kg`;
     $('#wt-last-date').textContent=fmtDate(lw.date);
     $('#wt-last-fat').textContent=lw.fat!=null?lw.fat+' %':'--';
-    $('#wt-list').innerHTML=weights.slice(-20).reverse().map(w=>`<div class="wt-item"><span class="d">${fmtDate(w.date)}</span><span style="display:flex;gap:14px"><span class="k">${w.kg} kg</span><span class="fat">${w.fat!=null?w.fat+'%':'·'}</span></span></div>`).join('');
+    $('#wt-list').innerHTML=weights.slice(-30).reverse().map(w=>{
+      const t=new Date(w.ts);
+      const tm=`${pad(t.getHours())}:${pad(t.getMinutes())}`;
+      return `<div class="wt-item"><span class="d">${fmtDate(w.date)} ${tm}</span><span style="display:flex;gap:14px"><span class="k">${w.kg} kg</span><span class="fat">${w.fat!=null?w.fat+'%':'·'}</span></span></div>`;
+    }).join('');
   }
+  renderMetrics();
   renderWtChart();
+}
+function renderMetrics(){
+  const grid=$('#metric-grid');
+  if(!weights.length){grid.innerHTML='<div style="grid-column:span 4;font-size:12px;color:var(--ink3);text-align:center;padding:8px">记录体重/身体成分后显示</div>';return}
+  const last=weights[weights.length-1];
+  const prev=weights.length>1?weights[weights.length-2]:null;
+  grid.innerHTML=METRICS.map(m=>{
+    const v=last[m.k];
+    let trend='';
+    if(prev&&prev[m.k]!=null&&v!=null){
+      const d=Math.round((v-prev[m.k])*10)/10;
+      if(Math.abs(d)>=0.05){
+        const better=m.down?(d<0):(d>0);
+        trend=`<div class="trend ${better?'down':'up'}">${d>0?'▲+':'▼'}${Math.abs(d)}</div>`;
+      }
+    }
+    if(v==null)return `<div class="metric-cell" data-m="${m.k}"><div class="v none">--</div><div class="k">${m.n}</div></div>`;
+    return `<div class="metric-cell" data-m="${m.k}"><div class="v">${v}<small>${m.u}</small></div><div class="k">${m.n}</div>${trend}</div>`;
+  }).join('');
+  grid.querySelectorAll('.metric-cell').forEach(c=>c.addEventListener('click',()=>openMetricChart(c.dataset.m)));
+}
+$('#chart-close').addEventListener('click',()=>closeLayer('chart'));
+$('#chart-mask').addEventListener('click',e=>{if(e.target.id==='chart-mask')closeLayer('chart')});
+function closeChart(){$('#chart-mask').classList.remove('open');document.body.style.overflow=''}
+function openMetricChart(k){
+  const m=METRICS.find(x=>x.k===k)||{n:k,u:''};
+  const data=weights.filter(w=>w[k]!=null);
+  if(data.length<2){toast(`「${m.n}」至少要2条记录才出趋势`);return}
+  $('#chart-title').textContent=`${m.n} 趋势`;
+  const svg=$('#chart-svg');
+  const W=440,H=230,PAD=30;
+  const vs=data.map(w=>w[k]),mn=Math.min(...vs),mx=Math.max(...vs);
+  const range=(mx-mn)||1;
+  const X=i=>PAD+(W-2*PAD)*i/(data.length-1);
+  const Y=v=>H-34-(H-64)*(v-mn)/range;
+  let path='',dots='';
+  data.forEach((w,i)=>{
+    path+=(i?'L':'M')+X(i).toFixed(1)+','+Y(w[k]).toFixed(1);
+    dots+=`<circle cx="${X(i).toFixed(1)}" cy="${Y(w[k]).toFixed(1)}" r="3.2" fill="var(--blue)" stroke="var(--card)" stroke-width="1.5"/>`;
+  });
+  svg.innerHTML=`<line x1="${PAD}" y1="${Y(mn)}" x2="${W-PAD}" y2="${Y(mn)}" stroke="var(--line)" stroke-dasharray="4 4"/>
+    <text x="${PAD-4}" y="${Y(mn)-5}" font-size="11" fill="var(--ink3)">${mn}${m.u}</text>
+    <text x="${W-PAD+4}" y="${Y(mx)+4}" text-anchor="end" font-size="11" fill="var(--ink3)">${mx}${m.u}</text>
+    <path d="${path}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+    <text x="${PAD}" y="${H-10}" font-size="11" fill="var(--ink3)">${fmtDate(data[0].date).slice(5)}</text>
+    <text x="${W-PAD}" y="${H-10}" text-anchor="end" font-size="11" fill="var(--ink3)">${fmtDate(data[data.length-1].date).slice(5)}</text>`;
+  const first=data[0][k],lastV=data[data.length-1][k];
+  const d=Math.round((lastV-first)*10)/10;
+  const better=m.down?(d<0):(d>0);
+  $('#chart-summary').innerHTML=`最新 <b>${lastV}${m.u}</b>（${fmtDate(data[data.length-1].date)}）· 共${data.length}条记录 · 趋势 <b style="color:${d===0?'var(--ink2)':(better?'var(--green)':'var(--red)')}">${d>0?'升':'降'} ${Math.abs(d)}${m.u}</b>（对比首条${first}${m.u}）${m.down?'':'（这个指标上升通常更好）'}`;
+  $('#chart-mask').classList.add('open');document.body.style.overflow='hidden';
+  openLayer('chart',closeChart);
 }
 function renderWtChart(){
   const svg=$('#wt-chart');const W=440,H=180,PAD=26;
-  const data=weights.slice(-30);
+  const data=weights.slice(-40);
   if(data.length<2){svg.innerHTML=`<text x="220" y="90" text-anchor="middle" fill="var(--ink3)" font-size="13">记录两次体重后出现曲线</text>`;return}
   const kgs=data.map(w=>w.kg),mn=Math.min(...kgs),mx=Math.max(...kgs);
   const range=(mx-mn)||1;
@@ -1438,9 +1679,7 @@ function renderWtChart(){
     let fpath='',fdots='';
     fdata.forEach((w,i)=>{const gi=data.indexOf(w);fpath+=(i?'L':'M')+X(gi).toFixed(1)+','+FY(w.fat).toFixed(1);
       fdots+=`<circle cx="${X(gi).toFixed(1)}" cy="${FY(w.fat).toFixed(1)}" r="3" fill="var(--red)" stroke="var(--card)" stroke-width="1.5"/>`});
-    fatPart=`<path d="${fpath}" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-dasharray="1 0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>${fdots}
-      <text x="${W-PAD+4}" y="${FY(fmx)+4}" text-anchor="end" font-size="11" fill="var(--red)" opacity=".8">${fmx}%</text>
-      <text x="${PAD-4}" y="${FY(fmn)-4}" font-size="11" fill="var(--red)" opacity=".8">${fmn}%</text>`;
+    fatPart=`<path d="${fpath}" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>${fdots}`;
   }
   svg.innerHTML=`<line x1="${PAD}" y1="${Y(mn)}" x2="${W-PAD}" y2="${Y(mn)}" stroke="var(--line)" stroke-dasharray="4 4"/>
     <text x="${PAD-4}" y="${Y(mn)-6}" text-anchor="start" font-size="11" fill="var(--ink3)">${mn}kg</text>
@@ -1451,6 +1690,7 @@ function renderWtChart(){
     <text x="${PAD}" y="${H-8}" font-size="11" fill="var(--ink3)">${fmtDate(data[0].date).slice(5)}</text>
     <text x="${W-PAD}" y="${H-8}" text-anchor="end" font-size="11" fill="var(--ink3)">${fmtDate(data[data.length-1].date).slice(5)}</text>`;
 }
+
 /* ================= 设置页 ================= */
 function renderSettings(){
   $$('#seg-gender button').forEach(b=>b.classList.toggle('on',b.dataset.v===settings.gender));
@@ -1491,24 +1731,30 @@ $('#btn-save-set').addEventListener('click',()=>{
   LS.set('kcal_settings',settings);
   toast('目标已保存 💪');renderToday();
 });
-/* ================= 运动消耗编辑 ================= */
+/* ================= 手表数据编辑 ================= */
 function showExInput(){
-  const cur=getExercise(todayKey());
-  $('#ex-input').value=cur>0?cur:'';
+  const w=getWatch(todayKey());
+  $('#ex-input').value=w.kcal>0?w.kcal:'';
+  $('#ex-steps').value=w.steps>0?w.steps:'';
+  $('#ex-sleep').value=w.sleep>0?w.sleep:'';
   $('#ex-display').style.display='none';
+  $('#ex-stats').style.display='none';
   $('#ex-input-row').style.display='flex';
   $('#ex-input').focus();
 }
 $('#ex-edit-btn').addEventListener('click',showExInput);
 $('#ex-display').addEventListener('click',showExInput);
 $('#ex-save').addEventListener('click',()=>{
-  const v=parseFloat($('#ex-input').value);
-  if(isNaN(v)||v<0||v>8000){toast('填个有效的运动消耗（0-8000）');return}
-  setExercise(todayKey(),v);
+  const kcal=parseFloat($('#ex-input').value)||0;
+  const steps=parseFloat($('#ex-steps').value)||0;
+  const sleep=parseFloat($('#ex-sleep').value)||0;
+  if(kcal<0||steps<0||sleep<0||kcal>8000||steps>120000||sleep>1440){toast('数字不太对，检查一下');return}
+  setWatch(todayKey(),{kcal,steps,sleep});
   $('#ex-display').style.display='flex';
+  $('#ex-stats').style.display='flex';
   $('#ex-input-row').style.display='none';
   renderToday();
-  toast(v>0?'运动消耗已记，多吃点也有底气了 💪':'运动消耗已清零');
+  toast(kcal>0||steps>0?`手表数据已记（${kcal}千卡 · ${steps}步）`:'已清零');
 });
 
 /* ================= 历史页净目标 ================= */
@@ -1517,7 +1763,7 @@ function netGoal(dk){return getGoals().kcal+getExercise(dk)}
 /* ================= 数据导出 / 导入恢复 / 清空 ================= */
 $('#btn-export-csv').addEventListener('click',()=>{
   if(!records.length&&!weights.length){toast('还没有数据，先记几天再导出');return}
-  const head=['行类型','日期','餐次','食物名称','克数','能量(千卡)','蛋白质(g)','碳水(g)','脂肪(g)','糖(g)','钠(mg)','膳食纤维(g)','运动消耗(千卡)','体重(kg)','体脂率(%)','热量目标(千卡)'];
+  const head=['行类型','日期','时间','餐次','食物名称','克数','能量(千卡)','蛋白质(g)','碳水(g)','脂肪(g)','糖(g)','钠(mg)','膳食纤维(g)','手表消耗(千卡)','步数','睡眠(分)','体重(kg)','体脂率(%)','BMI','水分(%)','内脏脂肪','肌肉(kg)','蛋白(%)','基础代谢(千卡)','骨量(kg)','热量目标(千卡)','热量剩余(千卡)','蛋白质剩余(g)','碳水剩余(g)','脂肪剩余(g)'];
   const rows=[head];
   const daySet=new Set();
   records.forEach(r=>daySet.add(r.date));
@@ -1525,16 +1771,20 @@ $('#btn-export-csv').addEventListener('click',()=>{
   const days=[...daySet].sort();
   const goals=getGoals();
   const r1=v=>Math.round(v*10)/10;
+  const W_FIELDS=['kg','fat','bmi','water','visceral','muscle','protein','bmr','bone'];
   for(const dk of days){
     const dr=dayRecords(dk), sum=daySum(dk);
     for(const r of dr){
-      rows.push(['记录',dk,MEALS[r.meal].n,r.name,r.grams,r1(r.totals.kcal),r1(r.totals.p),r1(r.totals.c),r1(r.totals.f),
-        r.totals.sugar==null?'':r1(r.totals.sugar),r.totals.sodium==null?'':Math.round(r.totals.sodium),r.totals.fiber==null?'':r1(r.totals.fiber),'','','','']);
+      const t=new Date(r.ts);
+      rows.push(['记录',dk,`${pad(t.getHours())}:${pad(t.getMinutes())}`,MEALS[r.meal].n,r.name,r.grams,r1(r.totals.kcal),r1(r.totals.p),r1(r.totals.c),r1(r.totals.f),
+        r.totals.sugar==null?'':r1(r.totals.sugar),r.totals.sodium==null?'':Math.round(r.totals.sodium),r.totals.fiber==null?'':r1(r.totals.fiber),'','','','','','','','','','','','','','','','','','']);
     }
-    const ex=getExercise(dk);
-    const w=weights.find(x=>x.date===dk);
-    rows.push(['日汇总',dk,'——',`共${dr.length}条`,'',r1(sum.kcal),r1(sum.p),r1(sum.c),r1(sum.f),
-      '', sum.sugar||'','','',ex||'',w?w.kg:'',w&&w.fat!=null?w.fat:'',goals.kcal]);
+    const w=getWatch(dk);
+    const wd=lastWeightOf(dk);
+    rows.push(['日汇总',dk,'','——',`共${dr.length}条`,'',r1(sum.kcal),r1(sum.p),r1(sum.c),r1(sum.f),'','',
+      w.kcal||'',w.steps||'',w.sleep||'',
+      ...(wd?W_FIELDS.map(f=>wd[f]==null?'':wd[f]):['','','','','','','','','']),
+      goals.kcal,r1(goals.kcal+w.kcal-sum.kcal),r1(goals.p-sum.p),r1(goals.c-sum.c),r1(goals.f-sum.f)]);
   }
   const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
