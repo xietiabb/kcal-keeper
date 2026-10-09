@@ -234,6 +234,16 @@ body{
 .btn-import-wt{border:1.2px solid var(--green);background:var(--green-lt);color:var(--green-dk);border-radius:99px;padding:5px 13px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
 #import-wt-text{width:100%;margin-top:10px;padding:13px;border:1.5px solid var(--line);border-radius:14px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical;line-height:1.7;box-sizing:border-box}
 #import-wt-text:focus{outline:none;border-color:var(--green)}
+.zepp-img-row{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:8px 10px;margin-bottom:8px;box-shadow:var(--shadow)}
+.zepp-img-row img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.zst{font-size:12px;color:var(--ink2)}
+.zst.ok{color:var(--green);font-weight:700}
+.zst.bad{color:var(--red);font-weight:700}
+.zepp-res-row{display:grid;grid-template-columns:1.25fr 1fr 1fr 34px;gap:7px;margin-bottom:8px;align-items:center}
+.zepp-res-row input{padding:10px 8px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums;width:100%;box-sizing:border-box}
+.zepp-res-row input:focus{outline:none;border-color:var(--green)}
+.zepp-res-row input::-webkit-calendar-picker-indicator{filter:invert(.5)}
+.zepp-del{border:none;background:var(--red-lt);color:var(--red);border-radius:10px;height:40px;font-size:14px;cursor:pointer;font-family:inherit}
 .wt-list .fat{color:var(--red);font-weight:700}
 .wt-chart-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 14px;margin-bottom:14px}
 .wt-goal-card{background:linear-gradient(135deg,#0D9463,#047857);border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:14px}
@@ -526,10 +536,22 @@ body{
     </div>
 
     <div class="set-card">
+      <div class="set-row" style="border-bottom:none;padding-bottom:6px">
+        <div class="lab">🤖 AI截图识别<small>填一次密钥，Zepp体重截图自动识别用</small></div>
+        <span class="tag-builtin" id="key-state">未设置</span>
+      </div>
+      <div style="padding:0 0 12px">
+        <input type="password" id="zhipu-key" placeholder="粘贴智谱 API Key" style="width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);box-sizing:border-box">
+        <div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.8">免费获取：浏览器打开 <b>open.bigmodel.cn</b> → 手机号注册 → 右上角「API密钥」→ 创建并复制 → 粘贴到上面。识别用的 GLM-4.6V-Flash 模型免费，不花钱。密钥只存在你手机里，不上传。</div>
+        <button class="btn-line small" id="btn-save-key" style="margin-top:10px;width:100%">保存密钥</button>
+      </div>
+    </div>
+
+    <div class="set-card">
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.5 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.6 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -698,6 +720,23 @@ body{
     <div class="calc-tip" style="margin-top:0">每行一条，格式：<b>日期 体重 体脂率</b><br>示例：<b>2026-10-08 82.5 28.5</b><br>体脂率可不填：<b>2026-10-07 83.1</b>（只更新体重）<br>同一日期会覆盖；体重 20-400kg，体脂 3-70% 之外自动忽略</div>
     <textarea id="import-wt-text" rows="7" placeholder="把数据粘贴到这里，一行一条…&#10;2026-10-08 82.5 28.5&#10;2026-10-07 83.1 28.9"></textarea>
     <button class="save-btn" id="import-wt-go" style="margin-top:10px">导入</button>
+    <button class="btn-line" id="btn-zepp" style="width:100%;margin-top:10px">📷 从 Zepp 截图识别</button>
+  </div>
+</div>
+
+<!-- ============ Zepp截图识别 ============ -->
+<div class="detail-mask" id="zepp-mask">
+  <div class="detail-card">
+    <div class="foods-mgr-head">
+      <div class="t">📷 Zepp 截图识别</div>
+      <button class="sheet-x" id="zepp-close">✕</button>
+    </div>
+    <div class="calc-tip" style="margin-top:0">选 Zepp Life 体重记录页截图（可多选）→ AI 识别 → <b>逐条核对</b> → 确认导入。识别错的数字可以直接点着改。</div>
+    <input type="file" id="zepp-files" accept="image/*" multiple style="display:none">
+    <button class="btn-line" id="zepp-pick" style="width:100%">＋ 从相册选截图（可多选）</button>
+    <div id="zepp-imgs" style="margin-top:10px"></div>
+    <div id="zepp-results"></div>
+    <button class="save-btn" id="zepp-import" style="display:none;margin-top:12px" disabled>确认导入</button>
   </div>
 </div>
 
@@ -767,6 +806,7 @@ let weights=LS.get('kcal_weights',[]);
 let calCursor=new Date();   // 历史月历
 let histSel=todayKey();     // 历史选中日期
 let adding=null;            // 添加中记录草稿
+let zeppRows=[];            // 截图识别暂存行
 
 /* ================= 目标计算 ================= */
 function calcBMR(s){
@@ -1163,19 +1203,160 @@ function closeImportWt(){$('#import-wt-mask').classList.remove('open');document.
 $('#import-wt-go').addEventListener('click',()=>{
   const rows=parseWtText($('#import-wt-text').value);
   if(!rows.length){toast('没有识别到有效数据，检查格式');return}
+  const {add,upd}=upsertWeights(rows);
+  closeImportWt();renderWeight();
+  toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
+});
+$('#btn-zepp').addEventListener('click',()=>{
+  closeImportWt();
+  zeppRows=[];
+  $('#zepp-imgs').innerHTML='';$('#zepp-results').innerHTML='';
+  $('#zepp-import').style.display='none';$('#zepp-import').disabled=true;
+  $('#zepp-mask').classList.add('open');document.body.style.overflow='hidden';
+});
+$('#zepp-close').addEventListener('click',closeZepp);
+$('#zepp-mask').addEventListener('click',e=>{if(e.target.id==='zepp-mask')closeZepp()});
+function closeZepp(){$('#zepp-mask').classList.remove('open');document.body.style.overflow=''}
+
+/* ===== AI 截图识别（智谱 GLM-4.6V-Flash） ===== */
+const ZHIPU_PROMPT='你是数据提取助手。这张截图来自体重管理App(Zepp Life)的体重记录页面。请找出图中所有体重记录条目，严格按JSON数组输出，不要输出任何其它文字或代码块标记：[{"date":"YYYY-MM-DD","weight":82.5,"fat":28.5}]。规则：date是该条记录的日期，统一转成YYYY-MM-DD；weight是体重数值(公斤)；fat是体脂率数值(百分号前的数字)，该条没有体脂就填null。只输出JSON数组。';
+function zhipuKey(){return LS.get('kcal_zhipu_key','')||''}
+$('#zepp-pick').addEventListener('click',()=>$('#zepp-files').click());
+$('#zepp-files').addEventListener('change',async e=>{
+  const key=zhipuKey();
+  if(!key){toast('先到 我的→AI截图识别 填密钥');e.target.value='';return}
+  const files=[...e.target.files];e.target.value='';
+  if(!files.length)return;
+  for(const f of files){
+    const rowId='zr'+uid();
+    $('#zepp-imgs').insertAdjacentHTML('beforeend',`<div class="zepp-img-row" id="${rowId}"><img alt=""><span class="zst">识别中…</span></div>`);
+    const thumb=$('#'+rowId+' img'), st=$('#'+rowId+' .zst');
+    try{
+      const dataURL=await compressPhotoTo(f,1100,0.8);
+      thumb.src=dataURL;
+      const rows=await zhipuAnalyze(dataURL,key);
+      if(rows.length){
+        rows.forEach(r=>zeppRows.push(r));
+        st.textContent=`识别到 ${rows.length} 条`;st.className='zst ok';
+      }else{st.textContent='未识别到记录';st.className='zst bad'}
+    }catch(err){
+      st.textContent='识别失败：'+(err.message||'网络错误');st.className='zst bad';
+    }
+    renderZeppRows();
+  }
+});
+async function compressPhotoTo(file,max,q){
+  return new Promise(res=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let{width:w,height:h}=img;
+      if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r)}
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      res(cv.toDataURL('image/jpeg',q));
+    };
+    img.onerror=()=>res('');
+    img.src=url;
+  });
+}
+async function zhipuAnalyze(dataURL,key){
+  const resp=await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'glm-4.6v-flash',
+      messages:[{role:'user',content:[
+        {type:'image_url',image_url:{url:dataURL}},
+        {type:'text',text:ZHIPU_PROMPT}
+      ]}]
+    })
+  });
+  if(!resp.ok){
+    let msg='HTTP '+resp.status;
+    try{const j=await resp.json();msg=j.error?.message||msg}catch(e){}
+    throw new Error(msg);
+  }
+  const j=await resp.json();
+  const txt=j.choices?.[0]?.message?.content||'';
+  const m=txt.match(/\[[\s\S]*\]/);
+  if(!m)return [];
+  let arr;
+  try{arr=JSON.parse(m[0])}catch(e){return []}
+  const out=[];
+  for(const it of arr){
+    if(!it||typeof it.date!=='string')continue;
+    const dm=it.date.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+    if(!dm)continue;
+    const dk=`${dm[1]}-${pad(+dm[2])}-${pad(+dm[3])}`;
+    const kg=parseFloat(it.weight);
+    if(!(kg>=20&&kg<=400))continue;
+    let fat=it.fat==null?null:parseFloat(it.fat);
+    if(fat!=null&&!(fat>=3&&fat<=70))fat=null;
+    if(dk>todayKey())continue;
+    out.push({date:dk,kg,fat});
+  }
+  return out;
+}
+function renderZeppRows(){
+  const box=$('#zepp-results');
+  if(!zeppRows.length){box.innerHTML='';updateZeppBtn();return}
+  box.innerHTML=zeppRows.map((r,i)=>`<div class="zepp-res-row">
+    <input type="date" value="${r.date}" data-i="${i}" data-f="date">
+    <input type="number" value="${r.kg}" step="0.1" data-i="${i}" data-f="kg" placeholder="kg">
+    <input type="number" value="${r.fat==null?'':r.fat}" step="0.1" data-i="${i}" data-f="fat" placeholder="体脂%">
+    <button class="zepp-del" data-i="${i}">✕</button>
+  </div>`).join('');
+  box.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{
+    const i=+inp.dataset.i,f=inp.dataset.f;
+    if(f==='date')zeppRows[i].date=inp.value;
+    if(f==='kg'){const v=parseFloat(inp.value);zeppRows[i].kg=isNaN(v)?0:v}
+    if(f==='fat'){const v=parseFloat(inp.value);zeppRows[i].fat=isNaN(v)?null:v}
+    updateZeppBtn();
+  }));
+  box.querySelectorAll('.zepp-del').forEach(b=>b.addEventListener('click',()=>{
+    zeppRows.splice(+b.dataset.i,1);renderZeppRows();
+  }));
+  updateZeppBtn();
+}
+function updateZeppBtn(){
+  const btn=$('#zepp-import');
+  if(!zeppRows.length){btn.style.display='none';return}
+  btn.style.display='block';
+  const valid=zeppRows.filter(r=>r.date&&r.kg>=20&&r.kg<=400).length;
+  btn.disabled=!valid;
+  btn.textContent=`确认导入 ${valid} 条`;
+}
+$('#zepp-import').addEventListener('click',()=>{
+  const rows=zeppRows.filter(r=>r.date&&r.kg>=20&&r.kg<=400);
+  if(!rows.length)return;
+  const {add,upd}=upsertWeights(rows);
+  closeZepp();renderWeight();
+  toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
+});
+function upsertWeights(rows){
   let add=0,upd=0;
   for(const r of rows){
-    const ex=weights.find(w=>w.date===r.date);
-    if(ex){ex.kg=r.kg;upd++}
-    else{weights.push({date:r.date,ts:new Date(r.date).getTime(),kg:r.kg});add++}
-    if(r.fat!=null){const w=weights.find(x=>x.date===r.date);if(w)w.fat=r.fat}
+    let w=weights.find(x=>x.date===r.date);
+    if(w){w.kg=r.kg;upd++}
+    else{w={date:r.date,ts:new Date(r.date).getTime(),kg:r.kg};weights.push(w);add++}
+    if(r.fat!=null)w.fat=r.fat;
+    else if(w.fat==null)delete w.fat;
   }
   weights.sort((a,b)=>a.date<b.date?-1:1);
   LS.set('kcal_weights',weights);
   const last=weights[weights.length-1];
   if(last){settings.weight=last.kg;LS.set('kcal_settings',settings)}
-  closeImportWt();renderWeight();
-  toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
+  return {add,upd};
+}
+$('#btn-save-key').addEventListener('click',()=>{
+  const k=$('#zhipu-key').value.trim();
+  if(!k){LS.set('kcal_zhipu_key','');$('#key-state').textContent='未设置';toast('密钥已清空');return}
+  if(!k.startsWith('sk-')&&k.length<20){toast('这个不像智谱密钥（sk-开头），检查一下');return}
+  LS.set('kcal_zhipu_key',k);
+  $('#key-state').textContent='已设置 ✓';
+  $('#zhipu-key').value='';
+  toast('密钥已保存，可以截图识别了');
 });
 function parseWtText(txt){
   const out=[];
@@ -1258,6 +1439,7 @@ function renderSettings(){
   $('#set-kcal').value=settings.dailyKcalGoal||'';
   const g=getGoals();
   $('#set-p').value=g.p;$('#set-c').value=g.c;$('#set-f').value=g.f;
+  $('#key-state').textContent=zhipuKey()?'已设置 ✓':'未设置';
   renderBmrTip();
 }
 $$('#seg-gender button').forEach(b=>b.addEventListener('click',()=>{
