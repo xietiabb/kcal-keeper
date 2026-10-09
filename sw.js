@@ -24,18 +24,19 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
-  // 页面导航：网络优先，保证永远拿到最新版；断网时回退缓存
+  // 页面导航：缓存立即返回（秒开），后台静默更新，下次打开生效
   if (e.request.mode === 'navigate' || (e.request.headers.get('accept') || '').includes('text/html')) {
     e.respondWith(
-      fetch(e.request).then(resp => {
-        if (resp.ok) {
-          const clone = resp.clone();
-          caches.open(CACHE_NAME).then(c => c.put('./index.html', clone));
-        }
-        return resp;
-      }).catch(() =>
-        caches.match('./index.html').then(c => c || caches.match(e.request))
-      )
+      caches.match('./index.html').then(cached => {
+        const fetchPromise = fetch(e.request).then(resp => {
+          if (resp.ok) {
+            const clone = resp.clone();
+            caches.open(CACHE_NAME).then(c => c.put('./index.html', clone));
+          }
+          return resp;
+        }).catch(() => cached);
+        return cached || fetchPromise;
+      })
     );
     return;
   }

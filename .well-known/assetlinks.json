@@ -3,6 +3,9 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.xietiabb.kcalkeeper",
-    "sha256_cert_fingerprints": ["903efe30265d3e0d0d6beda83f059cd127cace0afc68d89f3fe5751f96fd0015"]
+    "sha256_cert_fingerprints": [
+      "90:3E:FE:30:26:5D:3E:0D:0D:6B:ED:A8:3F:05:9C:D1:27:CA:CE:0A:FC:68:D8:9F:3F:E5:75:1F:96:FD:00:15",
+      "903efe30265d3e0d0d6beda83f059cd127cace0afc68d89f3fe5751f96fd0015"
+    ]
   }
 }]
