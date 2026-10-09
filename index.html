@@ -228,6 +228,13 @@ body{
 .weight-add{display:flex;gap:10px;margin-bottom:14px}
 .weight-add input{flex:1}
 .weight-add button{padding:0 22px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer}
+.wt-legend{display:flex;justify-content:center;gap:18px;font-size:11px;color:var(--ink2);margin-top:6px}
+.wt-legend span{display:flex;align-items:center;gap:5px}
+.wt-legend i{width:14px;height:3.5px;border-radius:2px;display:inline-block}
+.btn-import-wt{border:1.2px solid var(--green);background:var(--green-lt);color:var(--green-dk);border-radius:99px;padding:5px 13px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+#import-wt-text{width:100%;margin-top:10px;padding:13px;border:1.5px solid var(--line);border-radius:14px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical;line-height:1.7;box-sizing:border-box}
+#import-wt-text:focus{outline:none;border-color:var(--green)}
+.wt-list .fat{color:var(--red);font-weight:700}
 .wt-chart-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 14px;margin-bottom:14px}
 .wt-goal-card{background:linear-gradient(135deg,#0D9463,#047857);border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:14px}
 .wt-goal-card .row{display:flex;justify-content:space-between;align-items:baseline}
@@ -440,15 +447,22 @@ body{
       <div class="f-field" style="margin:0;flex:1">
         <div class="unit-wrap"><input type="number" id="wt-input" step="0.1" placeholder="今天的体重"><span class="unit">kg</span></div>
       </div>
+      <div class="f-field" style="margin:0;flex:0 0 108px">
+        <div class="unit-wrap"><input type="number" id="wt-fat" step="0.1" min="3" max="70" placeholder="体脂率"><span class="unit">%</span></div>
+      </div>
       <button id="wt-save">记录</button>
     </div>
     <div class="wt-chart-card">
-      <div class="form-title">📈 体重趋势</div>
-      <svg id="wt-chart" viewBox="0 0 440 170" style="width:100%;display:block"></svg>
+      <div class="form-title" style="justify-content:space-between;display:flex">
+        <span>📈 体重 · 体脂趋势</span>
+        <button class="btn-import-wt" id="btn-import-wt">批量导入</button>
+      </div>
+      <svg id="wt-chart" viewBox="0 0 440 180" style="width:100%;display:block"></svg>
+      <div class="wt-legend"><span><i style="background:var(--green)"></i>体重 kg</span><span><i style="background:var(--red)"></i>体脂率 %</span></div>
     </div>
     <div class="wt-latest">
-      <div><div style="font-size:12px;color:var(--ink2)">最近一次</div><div style="font-weight:800;font-size:19px" id="wt-last"></div></div>
-      <div style="font-size:13px;color:var(--ink2)" id="wt-last-date"></div>
+      <div><div style="font-size:12px;color:var(--ink2)">最近一次</div><div style="font-weight:800;font-size:19px" id="wt-last"></div><div style="font-size:11px;color:var(--ink3);margin-top:2px" id="wt-last-date"></div></div>
+      <div style="text-align:right"><div style="font-size:12px;color:var(--ink2)">体脂率</div><div style="font-weight:800;font-size:19px;color:var(--red)" id="wt-last-fat">--</div></div>
     </div>
     <div class="wt-list" id="wt-list"></div>
   </section>
@@ -514,7 +528,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.3.1 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.4 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -670,6 +684,19 @@ body{
     </div>
     <div style="font-size:12px;color:var(--ink2);margin-bottom:12px">内置食物不可删；自定义的在记录页点 ⭐ 添加。录入时输入名称会自动弹出。</div>
     <div id="foods-mgr-list"></div>
+  </div>
+</div>
+
+<!-- ============ 批量导入体重 ============ -->
+<div class="detail-mask" id="import-wt-mask">
+  <div class="detail-card">
+    <div class="foods-mgr-head">
+      <div class="t">📥 批量导入体重</div>
+      <button class="sheet-x" id="import-wt-close">✕</button>
+    </div>
+    <div class="calc-tip" style="margin-top:0">每行一条，格式：<b>日期 体重 体脂率</b><br>示例：<b>2026-10-08 82.5 28.5</b><br>体脂率可不填：<b>2026-10-07 83.1</b>（只更新体重）<br>同一日期会覆盖；体重 20-400kg，体脂 3-70% 之外自动忽略</div>
+    <textarea id="import-wt-text" rows="7" placeholder="把数据粘贴到这里，一行一条…&#10;2026-10-08 82.5 28.5&#10;2026-10-07 83.1 28.9"></textarea>
+    <button class="save-btn" id="import-wt-go" style="margin-top:10px">导入</button>
   </div>
 </div>
 
@@ -1113,14 +1140,58 @@ function renderHistDay(){
 $('#wt-save').addEventListener('click',()=>{
   const kg=parseFloat($('#wt-input').value);
   if(!kg||kg<20||kg>300){toast('请输入合理的体重（20-300kg）');return}
+  const fatRaw=parseFloat($('#wt-fat').value);
+  const fat=(fatRaw>=3&&fatRaw<=70)?fatRaw:null;
   weights=weights.filter(w=>w.date!==todayKey());
-  weights.push({date:todayKey(),ts:Date.now(),kg});
+  weights.push({date:todayKey(),ts:Date.now(),kg,fat:fat??undefined});
   weights.sort((a,b)=>a.date<b.date?-1:1);
   LS.set('kcal_weights',weights);
   settings.weight=kg;LS.set('kcal_settings',settings);
-  $('#wt-input').value='';
-  toast(`已记录 ${kg}kg`);renderWeight();
+  $('#wt-input').value='';$('#wt-fat').value='';
+  toast(`已记录 ${kg}kg${fat!=null?` · 体脂${fat}%`:''}`);renderWeight();
 });
+
+/* ================= 体重批量导入 ================= */
+$('#btn-import-wt').addEventListener('click',()=>{
+  $('#import-wt-text').value='';
+  $('#import-wt-mask').classList.add('open');document.body.style.overflow='hidden';
+});
+$('#import-wt-close').addEventListener('click',closeImportWt);
+$('#import-wt-mask').addEventListener('click',e=>{if(e.target.id==='import-wt-mask')closeImportWt()});
+function closeImportWt(){$('#import-wt-mask').classList.remove('open');document.body.style.overflow=''}
+$('#import-wt-go').addEventListener('click',()=>{
+  const rows=parseWtText($('#import-wt-text').value);
+  if(!rows.length){toast('没有识别到有效数据，检查格式');return}
+  let add=0,upd=0;
+  for(const r of rows){
+    const ex=weights.find(w=>w.date===r.date);
+    if(ex){ex.kg=r.kg;upd++}
+    else{weights.push({date:r.date,ts:new Date(r.date).getTime(),kg:r.kg});add++}
+    if(r.fat!=null){const w=weights.find(x=>x.date===r.date);if(w)w.fat=r.fat}
+  }
+  weights.sort((a,b)=>a.date<b.date?-1:1);
+  LS.set('kcal_weights',weights);
+  const last=weights[weights.length-1];
+  if(last){settings.weight=last.kg;LS.set('kcal_settings',settings)}
+  closeImportWt();renderWeight();
+  toast(`导入完成：新增${add}条${upd?`、更新${upd}条`:''}`);
+});
+function parseWtText(txt){
+  const out=[];
+  for(const line of String(txt||'').split(/[\n\r]+/)){
+    const m=line.match(/(\d{4})[-\/.年](\d{1,2})[-\/.月](\d{1,2})[日]?[\s,，\t]+(\d{2,3}(?:\.\d+)?)[\s]?(?:kg|公斤|千克)?[\s,，\t]*(\d{1,2}(?:\.\d+)?)?\s*%?/);
+    if(!m)continue;
+    const dk=`${m[1]}-${pad(+m[2])}-${pad(+m[3])}`;
+    if(+m[2]<1||+m[2]>12||+m[3]<1||+m[3]>31)continue;
+    if(dk>todayKey())continue;
+    const kg=parseFloat(m[4]);
+    if(!(kg>=20&&kg<=400))continue;
+    let fat=m[5]?parseFloat(m[5]):null;
+    if(fat!=null&&!(fat>=3&&fat<=70))fat=null;
+    out.push({date:dk,kg,fat});
+  }
+  return out;
+}
 function renderWeight(){
   const goal=+settings.goalWeight||0;
   const first=weights[0]?weights[0].kg:(+settings.weight||0);
@@ -1137,24 +1208,39 @@ function renderWeight(){
     const lw=weights[weights.length-1];
     $('#wt-last').textContent=`${lw.kg} kg`;
     $('#wt-last-date').textContent=fmtDate(lw.date);
-    $('#wt-list').innerHTML=weights.slice(-20).reverse().map(w=>`<div class="wt-item"><span class="d">${fmtDate(w.date)}</span><span class="k">${w.kg} kg</span></div>`).join('');
+    $('#wt-last-fat').textContent=lw.fat!=null?lw.fat+' %':'--';
+    $('#wt-list').innerHTML=weights.slice(-20).reverse().map(w=>`<div class="wt-item"><span class="d">${fmtDate(w.date)}</span><span style="display:flex;gap:14px"><span class="k">${w.kg} kg</span><span class="fat">${w.fat!=null?w.fat+'%':'·'}</span></span></div>`).join('');
   }
   renderWtChart();
 }
 function renderWtChart(){
-  const svg=$('#wt-chart');const W=440,H=170,PAD=26;
+  const svg=$('#wt-chart');const W=440,H=180,PAD=26;
   const data=weights.slice(-30);
-  if(data.length<2){svg.innerHTML=`<text x="220" y="85" text-anchor="middle" fill="var(--ink3)" font-size="13">记录两次体重后出现曲线</text>`;return}
+  if(data.length<2){svg.innerHTML=`<text x="220" y="90" text-anchor="middle" fill="var(--ink3)" font-size="13">记录两次体重后出现曲线</text>`;return}
   const kgs=data.map(w=>w.kg),mn=Math.min(...kgs),mx=Math.max(...kgs);
   const range=(mx-mn)||1;
   const X=i=>PAD+ (W-2*PAD)*i/(data.length-1);
-  const Y=v=>H-40-(H-70)*(v-mn)/range;
+  const Y=v=>H-40-(H-75)*(v-mn)/range;
   let path='',dots='';
   data.forEach((w,i)=>{path+=(i?'L':'M')+X(i).toFixed(1)+','+Y(w.kg).toFixed(1);
     dots+=`<circle cx="${X(i).toFixed(1)}" cy="${Y(w.kg).toFixed(1)}" r="3.5" fill="var(--green)" stroke="var(--card)" stroke-width="2"/>`});
+  let fatPart='';
+  const fdata=data.filter(w=>w.fat!=null);
+  if(fdata.length>=2){
+    const fs=fdata.map(w=>w.fat),fmn=Math.min(...fs),fmx=Math.max(...fs);
+    const frange=(fmx-fmn)||1;
+    const FY=v=>H-40-(H-75)*(v-fmn)/frange;
+    let fpath='',fdots='';
+    fdata.forEach((w,i)=>{const gi=data.indexOf(w);fpath+=(i?'L':'M')+X(gi).toFixed(1)+','+FY(w.fat).toFixed(1);
+      fdots+=`<circle cx="${X(gi).toFixed(1)}" cy="${FY(w.fat).toFixed(1)}" r="3" fill="var(--red)" stroke="var(--card)" stroke-width="1.5"/>`});
+    fatPart=`<path d="${fpath}" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-dasharray="1 0" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>${fdots}
+      <text x="${W-PAD+4}" y="${FY(fmx)+4}" text-anchor="end" font-size="11" fill="var(--red)" opacity=".8">${fmx}%</text>
+      <text x="${PAD-4}" y="${FY(fmn)-4}" font-size="11" fill="var(--red)" opacity=".8">${fmn}%</text>`;
+  }
   svg.innerHTML=`<line x1="${PAD}" y1="${Y(mn)}" x2="${W-PAD}" y2="${Y(mn)}" stroke="var(--line)" stroke-dasharray="4 4"/>
     <text x="${PAD-4}" y="${Y(mn)-6}" text-anchor="start" font-size="11" fill="var(--ink3)">${mn}kg</text>
     <text x="${W-PAD+4}" y="${Y(mx)+4}" text-anchor="end" font-size="11" fill="var(--ink3)">${mx}kg</text>
+    ${fatPart}
     <path d="${path}" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     ${dots}
     <text x="${PAD}" y="${H-8}" font-size="11" fill="var(--ink3)">${fmtDate(data[0].date).slice(5)}</text>
