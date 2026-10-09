@@ -162,7 +162,8 @@ body{
 .form-title{font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
 .f-row{display:flex;gap:10px}
 .f-field{flex:1;margin-bottom:14px}
-.f-field label{display:block;font-size:12px;color:var(--ink2);margin-bottom:5px;font-weight:600}
+.f-field label{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;color:var(--ink2);margin-bottom:5px;font-weight:600}
+.lbl-unit{font-size:10px;color:var(--ink3);font-weight:500;white-space:nowrap}
 .f-field label em{color:var(--red);font-style:normal}
 .f-field input,.f-field select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;font-family:inherit;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none}
 .f-field input:focus,.f-field select:focus{outline:none;border-color:var(--green);background:var(--card)}
@@ -513,7 +514,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.3 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.3.1 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -558,7 +559,7 @@ body{
       <div class="form-card" style="margin-top:14px">
         <div class="form-title">基本信息</div>
         <div class="f-field">
-          <label>吃了什么 <em>*</em> <span class="label-tip">输入会自动弹出常用食物</span></label>
+          <label><span>吃了什么 <em>*</em></span><span class="label-tip">输入自动弹常用</span></label>
           <div class="f-name-row">
             <input type="text" id="f-name" placeholder="例如：燕麦 / 鸡蛋 / 红烧牛肉面" maxlength="30" autocomplete="off">
             <button class="star-btn" id="btn-star" title="把当前名称和数据存为常用食物">⭐</button>
@@ -576,8 +577,8 @@ body{
             </select>
           </div>
           <div class="f-field">
-            <label>重量 <em>*</em></label>
-            <div class="unit-wrap"><input type="number" id="f-grams" placeholder="350" min="1" step="1"><span class="unit">克</span></div>
+            <label><span>重量 <em>*</em></span><span class="lbl-unit">克</span></label>
+            <input type="number" id="f-grams" placeholder="350" min="1" step="1">
           </div>
         </div>
       </div>
@@ -589,36 +590,36 @@ body{
           <button data-mode="total">直接填这餐总量</button>
         </div>
         <div class="f-field" id="row-kcal">
-          <label>能量 <em>*</em></label>
-          <div class="unit-wrap"><input type="number" id="f-kcal" placeholder="520" min="0" step="1"><span class="unit" id="u-kcal">千卡/100g</span></div>
+          <label><span>能量 <em>*</em></span><span class="lbl-unit" id="u-kcal">千卡/100g</span></label>
+          <input type="number" id="f-kcal" placeholder="520" min="0" step="1">
         </div>
         <div class="nutri-3">
           <div class="f-field">
-            <label>蛋白质 <em>*</em></label>
-            <div class="unit-wrap"><input type="number" id="f-p" placeholder="20" min="0" step="0.1"><span class="unit" id="u-p">g/100g</span></div>
+            <label><span>蛋白质 <em>*</em></span><span class="lbl-unit" id="u-p">g/100g</span></label>
+            <input type="number" id="f-p" placeholder="20" min="0" step="0.1">
           </div>
           <div class="f-field">
-            <label>碳水 <em>*</em></label>
-            <div class="unit-wrap"><input type="number" id="f-c" placeholder="60" min="0" step="0.1"><span class="unit" id="u-c">g/100g</span></div>
+            <label><span>碳水 <em>*</em></span><span class="lbl-unit" id="u-c">g/100g</span></label>
+            <input type="number" id="f-c" placeholder="60" min="0" step="0.1">
           </div>
           <div class="f-field">
-            <label>脂肪 <em>*</em></label>
-            <div class="unit-wrap"><input type="number" id="f-f" placeholder="15" min="0" step="0.1"><span class="unit" id="u-f">g/100g</span></div>
+            <label><span>脂肪 <em>*</em></span><span class="lbl-unit" id="u-f">g/100g</span></label>
+            <input type="number" id="f-f" placeholder="15" min="0" step="0.1">
           </div>
         </div>
         <div class="opt-divider"><span>选填 · 有就填，配料表上有</span></div>
         <div class="nutri-3 nutri-opt">
           <div class="f-field">
-            <label>糖</label>
-            <div class="unit-wrap"><input type="number" id="f-sugar" placeholder="可不填" min="0" step="0.1"><span class="unit" id="u-sugar">g/100g</span></div>
+            <label><span>糖</span><span class="lbl-unit" id="u-sugar">g/100g</span></label>
+            <input type="number" id="f-sugar" placeholder="可不填" min="0" step="0.1">
           </div>
           <div class="f-field">
-            <label>钠</label>
-            <div class="unit-wrap"><input type="number" id="f-sodium" placeholder="可不填" min="0" step="1"><span class="unit" id="u-sodium">mg/100g</span></div>
+            <label><span>钠</span><span class="lbl-unit" id="u-sodium">mg/100g</span></label>
+            <input type="number" id="f-sodium" placeholder="可不填" min="0" step="1">
           </div>
           <div class="f-field">
-            <label>膳食纤维</label>
-            <div class="unit-wrap"><input type="number" id="f-fiber" placeholder="可不填" min="0" step="0.1"><span class="unit" id="u-fiber">g/100g</span></div>
+            <label><span>膳食纤维</span><span class="lbl-unit" id="u-fiber">g/100g</span></label>
+            <input type="number" id="f-fiber" placeholder="可不填" min="0" step="0.1">
           </div>
         </div>
         <div class="live-total">
