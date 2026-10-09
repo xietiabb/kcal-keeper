@@ -290,7 +290,7 @@ body{
 .nutri-opt input:focus{border-style:solid}
 .label-tip{font-size:11px;color:var(--ink3);font-weight:400;margin-left:6px}
 .ceil-tip{font-size:11px;color:var(--ink3);text-align:center;margin-top:9px;line-height:1.5}
-.btn-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 0 6px}
+.btn-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 0 6px}
 .btn-line.small{padding:12px 6px;font-size:13px;margin:0}
 .btn-line.danger{color:var(--red);border-color:var(--red)}
 .foods-mgr-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:130;display:none;align-items:flex-end;justify-content:center}
@@ -508,13 +508,14 @@ body{
       <div class="set-row" style="flex-direction:column;align-items:stretch;gap:0;padding:14px 0 4px">
         <div class="lab" style="margin-bottom:6px">💾 数据管理<small>数据只存这台手机，建议每周导出备份一次</small></div>
       </div>
-      <div class="btn-3col">
-        <button class="btn-line small" id="btn-export">📤 导出备份</button>
+      <div class="btn-2col">
+        <button class="btn-line small" id="btn-export-csv">📊 导出CSV（发AI）</button>
+        <button class="btn-line small" id="btn-export">💾 导出完整备份</button>
         <button class="btn-line small" id="btn-import">📥 导入恢复</button>
         <button class="btn-line small danger" id="btn-clear">🗑 清空数据</button>
       </div>
       <input type="file" id="import-input" accept="application/json,.json" style="display:none">
-      <div style="font-size:11px;color:var(--ink3);padding:6px 0 12px">导入恢复会用备份文件<b>覆盖</b>当前全部数据（记录、照片、体重、目标）</div>
+      <div style="font-size:11px;color:var(--ink3);padding:6px 0 12px">CSV=记录表格（发AI出报告用）；备份=完整数据（含照片，恢复用）；导入恢复会覆盖当前全部数据</div>
     </div>
 
     <div class="set-card">
@@ -528,7 +529,7 @@ body{
       <div class="set-row"><div class="lab">手机安装本App<small>添加到主屏幕，像原生App</small></div><button class="btn-ghost" style="flex:0 0 auto;padding:9px 14px;font-size:13px" id="btn-install-tip">查看</button></div>
     </div>
 
-    <div class="about">热量管家 v1.4 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
+    <div class="about">热量管家 v1.5 · 专为你量身定制<br>拍照记录每一餐 · 数据只存在你的手机里<br><span id="store-usage"></span></div>
   </section>
 
   <!-- ============ 底部Tab ============ -->
@@ -1309,6 +1310,33 @@ $('#ex-save').addEventListener('click',()=>{
 function netGoal(dk){return getGoals().kcal+getExercise(dk)}
 
 /* ================= 数据导出 / 导入恢复 / 清空 ================= */
+$('#btn-export-csv').addEventListener('click',()=>{
+  if(!records.length&&!weights.length){toast('还没有数据，先记几天再导出');return}
+  const head=['行类型','日期','餐次','食物名称','克数','能量(千卡)','蛋白质(g)','碳水(g)','脂肪(g)','糖(g)','钠(mg)','膳食纤维(g)','运动消耗(千卡)','体重(kg)','体脂率(%)','热量目标(千卡)'];
+  const rows=[head];
+  const daySet=new Set();
+  records.forEach(r=>daySet.add(r.date));
+  weights.forEach(w=>daySet.add(w.date));
+  const days=[...daySet].sort();
+  const goals=getGoals();
+  const r1=v=>Math.round(v*10)/10;
+  for(const dk of days){
+    const dr=dayRecords(dk), sum=daySum(dk);
+    for(const r of dr){
+      rows.push(['记录',dk,MEALS[r.meal].n,r.name,r.grams,r1(r.totals.kcal),r1(r.totals.p),r1(r.totals.c),r1(r.totals.f),
+        r.totals.sugar==null?'':r1(r.totals.sugar),r.totals.sodium==null?'':Math.round(r.totals.sodium),r.totals.fiber==null?'':r1(r.totals.fiber),'','','','']);
+    }
+    const ex=getExercise(dk);
+    const w=weights.find(x=>x.date===dk);
+    rows.push(['日汇总',dk,'——',`共${dr.length}条`,'',r1(sum.kcal),r1(sum.p),r1(sum.c),r1(sum.f),
+      '', sum.sugar||'','','',ex||'',w?w.kg:'',w&&w.fat!=null?w.fat:'',goals.kcal]);
+  }
+  const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`热量管家记录_${todayKey()}.csv`;a.click();
+  toast(`已导出CSV：${days.length}天数据`);
+});
 $('#btn-export').addEventListener('click',()=>{
   Promise.all(records.map(r=>DB.getPhoto(r.photoId).then(u=>[r.photoId,u]))).then(photoMap=>{
     const m={};photoMap.forEach(([id,u])=>m[id]=u);
