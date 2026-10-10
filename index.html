@@ -1364,42 +1364,48 @@ function closeZepp(){$('#zepp-mask').classList.remove('open');document.body.styl
 /* ===== AI 截图识别（智谱 GLM-4.6V-Flash） ===== */
 const ZHIPU_PROMPT='你是数据提取助手。截图来自Zepp Life或体脂秤App。请识别两类数据并严格输出JSON（不要任何其它文字或代码块标记）：{"body":[{"date":"YYYY-MM-DD","weight":82.5,"fat":28.5,"bmi":27.6,"water":55.2,"visceral":11,"muscle":55.8,"protein":18.2,"bmr":1780,"bone":3.4}],"watch":[{"date":"YYYY-MM-DD","kcal":320,"steps":8500,"sleep":450}]}。规则：body是体重/身体成分记录（weight体重kg必填，fat体脂率%，water水分率%，visceral内脏脂肪等级，muscle肌肉量kg，protein蛋白率%，bmr基础代谢千卡，bone骨量kg，图中没有的字段填null）；watch是运动/手表数据（kcal活动消耗千卡，steps步数，sleep睡眠时长统一换算成分钟如7小时30分=450）；日期统一转YYYY-MM-DD；同类数据按日期从早到晚排列。没有对应类型就输出空数组。只输出JSON。';
 function zhipuKey(){return LS.get('kcal_zhipu_key','')||''}
-$('#zepp-pick').addEventListener('click',()=>$('#zepp-files').click());
+$('#zepp-pick').addEventListener('click',()=>{if($('#zepp-pick').disabled)return;$('#zepp-files').click()});
 $('#zepp-files').addEventListener('change',async e=>{
   const key=zhipuKey();
   if(!key){toast('先到 我的→AI截图识别 填密钥');e.target.value='';return}
   const files=[...e.target.files];e.target.value='';
   if(!files.length)return;
-  for(const f of files){
-    const rowId='zr'+uid();
-    $('#zepp-imgs').insertAdjacentHTML('beforeend',`<div class="zepp-img-row" id="${rowId}"><img alt=""><span class="zst">识别中…</span></div>`);
-    const thumb=$('#'+rowId+' img'), st=$('#'+rowId+' .zst');
-    try{
-      let dataURL=await compressPhotoTo(f,1100,0.8);
-      if(dataURL.length>2.2*1024*1024)dataURL=await shrinkDataURL(dataURL);
-      thumb.src=dataURL;
-      const res=await zhipuAnalyze(dataURL,key);
-      const nB=(res.body||[]).length,nW=(res.watch||[]).length;
-      (res.body||[]).forEach(r=>zeppRows.push({type:'body',...r}));
-      (res.watch||[]).forEach(r=>zeppRows.push({type:'watch',...r}));
-      if(nB||nW){st.textContent=`识别到 ${nB+nW} 条（身体${nB} 手表${nW}）`;st.className='zst ok'}
-      else{st.textContent='未识别到记录';st.className='zst bad'}
-    }catch(err){
-      st.textContent='识别失败：'+(err.message||'网络错误');st.className='zst bad';
+  $('#zepp-pick').disabled=true;$('#zepp-pick').textContent='识别中，稍等…';
+  const rowIds=files.map(()=>{const rowId='zr'+uid();$('#zepp-imgs').insertAdjacentHTML('beforeend',`<div class="zepp-img-row" id="${rowId}"><img alt=""><span class="zst">排队中…</span></div>`);return rowId});
+  try{
+    for(let i=0;i<files.length;i++){
+      const rowId=rowIds[i];
+      const thumb=$('#'+rowId+' img'), st=$('#'+rowId+' .zst');
+      st.textContent='识别中…';
+      try{
+        let dataURL=await compressPhotoTo(files[i],900,0.6);
+        if(dataURL.length>1*1024*1024)dataURL=await shrinkDataURL(dataURL,600,0.45);
+        thumb.src=dataURL;
+        const res=await zhipuAnalyze(dataURL,key);
+        const nB=(res.body||[]).length,nW=(res.watch||[]).length;
+        (res.body||[]).forEach(r=>zeppRows.push({type:'body',...r}));
+        (res.watch||[]).forEach(r=>zeppRows.push({type:'watch',...r}));
+        if(nB||nW){st.textContent=`识别到 ${nB+nW} 条（身体${nB} 手表${nW}）`;st.className='zst ok'}
+        else{st.textContent='未识别到记录';st.className='zst bad'}
+      }catch(err){
+        st.textContent='识别失败：'+(err.message||'网络错误');st.className='zst bad';
+      }
+      renderZeppRows();
     }
-    renderZeppRows();
+  }finally{
+    $('#zepp-pick').disabled=false;$('#zepp-pick').textContent='＋ 从相册选截图（可多选）';
   }
 });
-async function shrinkDataURL(dataURL){
+async function shrinkDataURL(dataURL,maxP,quality){
   return new Promise(res=>{
     const img=new Image();
     img.onload=()=>{
       let{width:w,height:h}=img;
-      const r=Math.min(700/w,700/h,1);
+      const r=Math.min(maxP/w,maxP/h,1);
       w=Math.round(w*r);h=Math.round(h*r);
       const cv=document.createElement('canvas');cv.width=w;cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
-      res(cv.toDataURL('image/jpeg',0.55));
+      res(cv.toDataURL('image/jpeg',quality));
     };
     img.onerror=()=>res(dataURL);
     img.src=dataURL;
@@ -1443,7 +1449,7 @@ async function zhipuAnalyze(dataURL,key){
   if(!m)return{body:[],watch:[]};
   let obj;
   try{obj=JSON.parse(m[0])}catch(e){return{body:[],watch:[]}}
-  const dkOf=s=>{if(typeof s!=='string')return null;const dm=s.match(/(\d{4})[-\/.年](\d{1,2})[-\/.月](\d{1,2})/);return dm?`${dm[1]}-${pad(+dm[2])}-${pad(+dm[3])}`:null};
+  const dkOf=s=>{if(typeof s!=='string')return null;const dm=s.match(/(\d{4})[-\/.年](\d{1,2})[-\/.月](\d{1,2})/);if(!dm)return null;let y=+dm[1];const mo=+dm[2],da=+dm[3];if(y<2000||y>new Date().getFullYear())y=new Date().getFullYear();if(mo<1||mo>12||da<1||da>31)return null;return `${y}-${pad(mo)}-${pad(da)}`};
   const body=[];
   for(const it of (obj.body||[])){
     const dk=dkOf(it&&it.date);if(!dk||dk>todayKey())continue;
