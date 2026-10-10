@@ -1919,11 +1919,14 @@ $('#detail-mask').addEventListener('click',e=>{if(e.target.id==='detail-mask')cl
   if(!settings){$('#onboard').classList.add('open');return}
   renderToday();
   DB.usage().then(u=>{$('#store-usage').textContent=`数据占手机存储 ${(u/1024).toFixed(0)}KB`});
+  const act=new URLSearchParams(location.search).get('a');
+  if(act==='add'){setTimeout(openAdd,250)}
+  else if(act==='wt'){switchPage('weight');setTimeout(()=>{const wi=$('#wt-input');if(wi)wi.focus()},400)}
   fetch('./index.html',{cache:'no-store',headers:{accept:'text/html'}}).then(r=>r.ok?r.text():null).then(t=>{
     if(!t)return;
     const m=t.match(/热量管家 (v[\d.]+) ·/);
     if(m&&!document.querySelector('.about').textContent.includes(m[1])){
-      toast(`发现新版本 ${m[1]}，完全关闭App再打开即更新`);
+      toast(`发现新版本 ${m[1]}，下次打开App生效`);
     }
   }).catch(()=>{});
 })();
